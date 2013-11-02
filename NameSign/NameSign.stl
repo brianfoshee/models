@@ -1,0 +1,310 @@
+solid NameSign
+facet normal -0.0 1.0 0.0
+outer loop
+vertex 0.0 152.4 27.43
+vertex 495.3 152.4 -25.4
+vertex 0.0 152.4 -25.4
+endloop
+endfacet
+facet normal -0.0 1.0 0.0
+outer loop
+vertex 495.3 152.4 -25.4
+vertex 0.0 152.4 27.43
+vertex 495.3 152.4 27.43
+endloop
+endfacet
+facet normal 1.0 0.0 0.0
+outer loop
+vertex 2.0 150.4 -25.4
+vertex 2.0 2.0 0.0
+vertex 2.0 2.0 -25.4
+endloop
+endfacet
+facet normal 1.0 0.0 0.0
+outer loop
+vertex 2.0 2.0 0.0
+vertex 2.0 150.4 -25.4
+vertex 2.0 150.4 0.0
+endloop
+endfacet
+facet normal -1.43495139555663e-18 1.0 0.0
+outer loop
+vertex 2.0 2.0 0.0
+vertex 493.3 2.0 -25.4
+vertex 2.0 2.0 -25.4
+endloop
+endfacet
+facet normal -1.43495139555663e-18 1.0 0.0
+outer loop
+vertex 493.3 2.0 -25.4
+vertex 2.0 2.0 0.0
+vertex 493.3 2.0 0.0
+endloop
+endfacet
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex 493.3 150.4 0.0
+vertex 2.0 2.0 0.0
+vertex 2.0 150.4 0.0
+endloop
+endfacet
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex 2.0 2.0 0.0
+vertex 493.3 150.4 0.0
+vertex 493.3 2.0 0.0
+endloop
+endfacet
+facet normal 0.0 -1.0 0.0
+outer loop
+vertex 493.3 150.4 27.43
+vertex 2.0 150.4 2.03
+vertex 493.3 150.4 2.03
+endloop
+endfacet
+facet normal 0.0 -1.0 0.0
+outer loop
+vertex 2.0 150.4 2.03
+vertex 493.3 150.4 27.43
+vertex 2.0 150.4 27.43
+endloop
+endfacet
+facet normal 1.43495139555663e-18 1.0 0.0
+outer loop
+vertex 2.0 2.0 27.43
+vertex 493.3 2.0 2.03
+vertex 2.0 2.0 2.03
+endloop
+endfacet
+facet normal 1.43495139555663e-18 1.0 0.0
+outer loop
+vertex 493.3 2.0 2.03
+vertex 2.0 2.0 27.43
+vertex 493.3 2.0 27.43
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex 493.3 2.0 2.03
+vertex 2.0 150.4 2.03
+vertex 2.0 2.0 2.03
+endloop
+endfacet
+facet normal -0.0 -0.0 1.0
+outer loop
+vertex 2.0 150.4 2.03
+vertex 493.3 2.0 2.03
+vertex 493.3 150.4 2.03
+endloop
+endfacet
+facet normal -1.0 -0.0 -0.0
+outer loop
+vertex 493.3 150.4 27.43
+vertex 493.3 2.0 2.03
+vertex 493.3 2.0 27.43
+endloop
+endfacet
+facet normal -1.0 -0.0 -0.0
+outer loop
+vertex 493.3 2.0 2.03
+vertex 493.3 150.4 27.43
+vertex 493.3 150.4 2.03
+endloop
+endfacet
+facet normal 1.0 0.0 0.0
+outer loop
+vertex 495.3 152.4 -25.4
+vertex 495.3 0.0 27.43
+vertex 495.3 0.0 -25.4
+endloop
+endfacet
+facet normal 1.0 0.0 0.0
+outer loop
+vertex 495.3 0.0 27.43
+vertex 495.3 152.4 -25.4
+vertex 495.3 152.4 27.43
+endloop
+endfacet
+facet normal 0.0 0.0 1.0
+outer loop
+vertex 0.0 0.0 27.43
+vertex 2.0 2.0 27.43
+vertex 0.0 152.4 27.43
+endloop
+endfacet
+facet normal 0.0 0.0 1.0
+outer loop
+vertex 2.0 2.0 27.43
+vertex 0.0 0.0 27.43
+vertex 495.3 0.0 27.43
+endloop
+endfacet
+facet normal 0.0 0.0 1.0
+outer loop
+vertex 2.0 2.0 27.43
+vertex 495.3 0.0 27.43
+vertex 493.3 2.0 27.43
+endloop
+endfacet
+facet normal 0.0 0.0 1.0
+outer loop
+vertex 493.3 2.0 27.43
+vertex 495.3 0.0 27.43
+vertex 493.3 150.4 27.43
+endloop
+endfacet
+facet normal 0.0 0.0 1.0
+outer loop
+vertex 0.0 152.4 27.43
+vertex 2.0 150.4 27.43
+vertex 495.3 152.4 27.43
+endloop
+endfacet
+facet normal 0.0 0.0 1.0
+outer loop
+vertex 2.0 150.4 27.43
+vertex 0.0 152.4 27.43
+vertex 2.0 2.0 27.43
+endloop
+endfacet
+facet normal 0.0 0.0 1.0
+outer loop
+vertex 495.3 152.4 27.43
+vertex 2.0 150.4 27.43
+vertex 493.3 150.4 27.43
+endloop
+endfacet
+facet normal 0.0 0.0 1.0
+outer loop
+vertex 495.3 152.4 27.43
+vertex 493.3 150.4 27.43
+vertex 495.3 0.0 27.43
+endloop
+endfacet
+facet normal -0.0 -1.0 -0.0
+outer loop
+vertex 495.3 0.0 27.43
+vertex 0.0 0.0 -25.4
+vertex 495.3 0.0 -25.4
+endloop
+endfacet
+facet normal -0.0 -1.0 -0.0
+outer loop
+vertex 0.0 0.0 -25.4
+vertex 495.3 0.0 27.43
+vertex 0.0 0.0 27.43
+endloop
+endfacet
+facet normal -1.0 0.0 0.0
+outer loop
+vertex 0.0 152.4 27.43
+vertex 0.0 0.0 -25.4
+vertex 0.0 0.0 27.43
+endloop
+endfacet
+facet normal -1.0 0.0 0.0
+outer loop
+vertex 0.0 0.0 -25.4
+vertex 0.0 152.4 27.43
+vertex 0.0 152.4 -25.4
+endloop
+endfacet
+facet normal 1.0 -0.0 0.0
+outer loop
+vertex 2.0 150.4 2.03
+vertex 2.0 2.0 27.43
+vertex 2.0 2.0 2.03
+endloop
+endfacet
+facet normal 1.0 -0.0 0.0
+outer loop
+vertex 2.0 2.0 27.43
+vertex 2.0 150.4 2.03
+vertex 2.0 150.4 27.43
+endloop
+endfacet
+facet normal -1.0 0.0 0.0
+outer loop
+vertex 493.3 150.4 0.0
+vertex 493.3 2.0 -25.4
+vertex 493.3 2.0 0.0
+endloop
+endfacet
+facet normal -1.0 0.0 0.0
+outer loop
+vertex 493.3 2.0 -25.4
+vertex 493.3 150.4 0.0
+vertex 493.3 150.4 -25.4
+endloop
+endfacet
+facet normal -0.0 -1.0 -0.0
+outer loop
+vertex 493.3 150.4 0.0
+vertex 2.0 150.4 -25.4
+vertex 493.3 150.4 -25.4
+endloop
+endfacet
+facet normal -0.0 -1.0 -0.0
+outer loop
+vertex 2.0 150.4 -25.4
+vertex 493.3 150.4 0.0
+vertex 2.0 150.4 0.0
+endloop
+endfacet
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex 0.0 152.4 -25.4
+vertex 2.0 150.4 -25.4
+vertex 0.0 0.0 -25.4
+endloop
+endfacet
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex 2.0 150.4 -25.4
+vertex 0.0 152.4 -25.4
+vertex 495.3 152.4 -25.4
+endloop
+endfacet
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex 2.0 150.4 -25.4
+vertex 495.3 152.4 -25.4
+vertex 493.3 150.4 -25.4
+endloop
+endfacet
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex 493.3 150.4 -25.4
+vertex 495.3 152.4 -25.4
+vertex 493.3 2.0 -25.4
+endloop
+endfacet
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex 0.0 0.0 -25.4
+vertex 2.0 2.0 -25.4
+vertex 495.3 0.0 -25.4
+endloop
+endfacet
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex 2.0 2.0 -25.4
+vertex 0.0 0.0 -25.4
+vertex 2.0 150.4 -25.4
+endloop
+endfacet
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex 495.3 0.0 -25.4
+vertex 2.0 2.0 -25.4
+vertex 493.3 2.0 -25.4
+endloop
+endfacet
+facet normal 0.0 0.0 -1.0
+outer loop
+vertex 495.3 0.0 -25.4
+vertex 493.3 2.0 -25.4
+vertex 495.3 152.4 -25.4
+endloop
+endfacet
+endsolid NameSign
