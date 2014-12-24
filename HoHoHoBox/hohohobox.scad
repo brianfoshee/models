@@ -4,28 +4,43 @@
 // % Shows the object as half transparent (like #) and also does not render
 // it in the final rendering.
 
-$fa=1; // min angle between two facets
-$fs=0.5; // min size of a facet (subdivide when a facet becomes too large)
+$fa=1.5; // min angle between two facets
+$fs=0.1; // min size of a facet (subdivide when a facet becomes too large)
 
 use <TextGenerator.scad>;
 
-h=38.1;
-w=53.9;
 difference() {
-	rotate([90,0,0]) { import("bottom.stl"); }
+	rotate([90,0,0]) import("bottom.stl");
 
-	union() {
-		rotate([90,0,270]) {
-			translate([7.8,7,-5]) {
-				scale([3.5,3.5,6]) color([0.3,0.2,1]) drawtext("HO");
+	rotate([90,0,270]) {
+		scale([3,3,7]) {
+			translate([3.2,3,-0.8]) {
+				union() {
+					color([0.3,0.2,1]) drawtext("H");
+					//translate([6,1,0]) color([1,0,1]) cube([5,5,1]);
+					color([0.3,0.2,1]) 
+					linear_extrude(1) 
+					translate([8.5,3.5,0]) 
+					scale([3,3.5,1]) circle(d=2);
+				}
 			}
-		}
-	
-		translate([-2,-46.5,10]) {
-			color([1,0,1]) cube([8,18,18.5]);
 		}
 	}
 }
+
+	/*union() {
+		rotate([90,0,270]) {
+			translate([7.8,7,-5]) {
+				scale([3,3,6]) color([0.3,0.2,1]) drawtext("HO");
+			}
+		}
+
+		translate([-2,-46.5,10]) {
+			color([1,0,1]) cube([8,18,18.5]);
+		}
+	}*/
+
+
 
 //width=40;
 //height=60;
@@ -34,24 +49,23 @@ difference() {
 //
 //difference()
 //{
-//	intersectionTe() 
+//	intersectionTe()
 //	{
 //		cube([width,width,height],center=true);
-//		scale([1,1,height/width]) 
+//		scale([1,1,height/width])
 //			sphere(width/2 * sqrt(2));
 //	}
-//	translate([0,0,(-height/2)+bottom_thickness]) 
+//	translate([0,0,(-height/2)+bottom_thickness])
 //		cylinder(r=width/2-wall_thickness,h=height);
 //}
 
 //difference()
 //{
 //	cube([20,20,20],center=true);
-//		
+//
 //	rotate([0,90.0])
 //	{
 //			translate([10,9.5,0])
 //				cylinder(r=5,h=21,center=true);
 //	}
 //}
-

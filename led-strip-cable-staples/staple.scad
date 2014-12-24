@@ -16,19 +16,19 @@ difference() {
 
 	// Inner cutout (for LED strip)
 	translate([5.5,-0.1,-0.1]) cube([inl,inw+0.2,inh+0.1]);
+
+	// Counter-sunk screw hole #1 (closest to origin)
+	union() {
+		translate([(wl/2),(ow/2),-0.1]) {
+			cylinder(h=oh,r=scd);
+			translate([0,0,oh-0.8]) cylinder(h=1,r=scd*1.5);
+		}
+	}
 	
 	// Counter-sunk screw hole #2
 	union() {
 		translate([ol-(wl/2),(ow/2),-0.1]) {
 			cylinder(h=oh,r=scd); 
-			translate([0,0,oh-0.8]) cylinder(h=1,r=scd*1.5);
-		}
-	}
-
-	// Counter-sunk screw hole #1
-	union() {
-		translate([(wl/2),(ow/2),-0.1]) {
-			cylinder(h=oh,r=scd);
 			translate([0,0,oh-0.8]) cylinder(h=1,r=scd*1.5);
 		}
 	}
