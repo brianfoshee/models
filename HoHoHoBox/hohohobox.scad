@@ -9,24 +9,60 @@ $fs=0.1; // min size of a facet (subdivide when a facet becomes too large)
 
 use <TextGenerator.scad>;
 
-difference() {
-	rotate([90,0,0]) import("bottom.stl");
-
-	rotate([90,0,270]) {
-		scale([3,3,7]) {
-			translate([3.2,3,-0.8]) {
-				union() {
-					color([0.3,0.2,1]) drawtext("H");
-					//translate([6,1,0]) color([1,0,1]) cube([5,5,1]);
-					color([0.3,0.2,1]) 
-					linear_extrude(1) 
-					translate([8.5,3.5,0]) 
-					scale([3,3.5,1]) circle(d=2);
+scale([2,2,2]) {
+	difference() {
+		rotate([90,0,0]) import("bottom.stl");
+		
+		rotate([90,0,270]) {
+			scale([3,3,7]) {
+				translate([3.2,3,-0.8]) {
+					union() {
+						color([0.3,0.2,1]) drawtext("H");
+						//translate([6,1,0]) color([1,0,1]) cube([5,5,1]);
+						color([0.3,0.2,1]) 
+						linear_extrude(1) 
+						translate([8.5,3.5,0]) 
+						scale([3,3.5,1]) circle(d=2);
+					}
+				}
+			}
+		}
+	
+		rotate([90,0,90]) {
+			scale([3,3,7]) {
+				translate([-14.8,3,7]) {
+					union() {
+						color([0.3,0.2,1]) drawtext("H");
+						//translate([6,1,0]) color([1,0,1]) cube([5,5,1]);
+						color([0.3,0.2,1]) 
+						linear_extrude(1) 
+						translate([8.5,3.5,0]) 
+						scale([3,3.5,1]) circle(d=2);
+					}
+				}
+			}
+		}
+	
+		rotate([90,0,0]) {
+			scale([3,3,7]) {
+				translate([3.2,3,6.8]) {
+					union() {
+						color([0.3,0.2,1]) drawtext("H");
+						//translate([6,1,0]) color([1,0,1]) cube([5,5,1]);
+						color([0.3,0.2,1]) 
+						linear_extrude(1) 
+						translate([8.5,3.5,0]) 
+						scale([3,3.5,1]) circle(d=2);
+					}
 				}
 			}
 		}
 	}
+
 }
+
+
+
 
 	/*union() {
 		rotate([90,0,270]) {
