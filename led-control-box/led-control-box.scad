@@ -8,6 +8,30 @@ d=72.6;
 wt=4.0;
 // corner radius
 cr=8.0;
+// lid height
+lh=16;
+
+// Lid
+*translate([0,0,60]) difference() {
+	union() {
+		for(x=[-1,1]) {
+			for(y=[-1,1]) {
+				translate([x*((l/2)),y*((d/2)),0]) 
+					cylinder(r=cr,h=lh, center=true);
+			}
+		}
+		cube([l,d+2*cr,lh], center=true);
+		cube([l+2*cr,d,lh], center=true);
+		// inner cube
+		translate([0,0,-wt/2]) cube([l,d,lh+wt],center=true);
+	}
+	// inner-inner cube
+	translate([0,0,-wt-0.1]) 
+		cube([l-wt*2,d-wt*2,lh],center=true);
+	for(i=[-10:1:10]) {
+		// make a cube
+	}
+}
 
 // main structure
 difference() {
