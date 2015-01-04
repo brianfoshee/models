@@ -1,3 +1,4 @@
+use <iec320.scad>
 $fa=0.5;
 $fs=0.5;
 // Inner cube dimensions
@@ -60,6 +61,11 @@ difference() {
 		}
 	}
 
+	// IEC320-C14 socket and rocker switch
+	translate([-((l/2)+(2.4/2)+(wt*2)+0.1),0,0])
+		rotate([0,0,90])
+			iec320_socket();
+
 	// Power Supply mounting screws
 	// AC
 	translate([-(d/2)-30.4,-(d/2)-wt,-((h/2)-15-9)]) 
@@ -72,8 +78,7 @@ difference() {
 }
 
 // IEC320-C14 socket and rocker switch
-use <iec320.scad>
-%translate([-((l/2)+(2.4/2)+(wt*2)),0,0])
+%translate([-((l/2)+(2.4/2)+(wt*2)+0.1),0,0])
 	rotate([0,0,90])
 		iec320_socket();
 
