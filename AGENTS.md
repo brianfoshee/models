@@ -244,5 +244,9 @@ Tests: `tools/test-usdz.sh`. Run them after changing the converter.
 - Commit source (`.scad`, `.blend`) and the exports someone would actually use
   (`.stl`, `.3mf`, `.usdz`). Don't add Blender backup files (`.blend1`…) or
   `.DS_Store` in new commits.
+- GitHub renders `.stl` in the browser but not `.3mf` or `.usdz`. For each
+  `.usdz`, also commit a binary `.stl` of the same view with the same name
+  (`openscad --export-format binstl`). These are only for viewing on GitHub,
+  not for printing.
 - Binary files don't diff; mention in the commit message what changed in a
   `.blend` or exported mesh.
