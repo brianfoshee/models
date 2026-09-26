@@ -49,6 +49,10 @@ bottom_window = true;
 // Width of the shelf the planets ride on, inward from the ring's tooth tips
 shelf_width = 4; // [2:0.5:10]
 spoke_width = 4; // [2:0.5:10]
+// Open the lid and the carrier plate between spokes, to watch the planets from above
+top_windows = true;
+// Width of the carrier rim and the lid ring inside the ring's tooth tips; the carrier rides on the teeth
+rim_overlap = 1.5; // [1:0.5:4]
 
 /* [Carrier and pointer] */
 plate_height = 4; // [2:0.5:8]
@@ -99,6 +103,8 @@ assert(shaft_d / 2 < pitch_r(sun_teeth) - 1.25 * m - 1, "shaft too thick for the
 assert(crank_hex / cos(30) < shaft_d, "crank hex must fit inside the shaft to leave a shoulder");
 assert(gear_height - window_height >= 3, "windows must leave at least 1.5 mm of ring teeth above and below");
 assert(!bottom_window || bottom_window_r > hub_r + 5, "shelf too wide for a bottom window");
+assert(!top_windows || pointer_hex / cos(30) / 2 + 1.5 < pointer_hub_r, "pointer hub too small to wall the carrier's hex socket");
+assert(!top_windows || top_window_r < housing_r - 9, "top windows run into the dial's long ticks");
 
 // Heights, bottom to top
 gear_z0 = floor_height;
@@ -116,9 +122,15 @@ sun_pin_z1 = gear_z0 + gear_height * 0.6;
 socket_depth = plate_height - 1.5;
 lid_hole_r = pointer_hub_r + 2 * clearance;
 tab_angles = [for (i = [0:2]) i * 120 + 60];
+planet_angles = [for (i = [0:planet_count - 1]) i * 360 / planet_count];
 window_angles = windows ? [for (a = tab_angles) a + 60] : [];
 bottom_window_r = pitch_r(ring_teeth) - m - shelf_width;
 hub_r = sun_pin_d / 2 + 3;
+top_window_r = pitch_r(ring_teeth) - m - rim_overlap;
+lid_hub_r = lid_hole_r + 3;
+// Boss around each planet pin where it meets the carrier's spoke
+pin_boss_r = planet_pin_d / 2 + 2;
+engrave_depth = 0.6;
 tab_z0 = lid_z0 - tab_length;
 barb_height = 2 * barb_depth;
 knob_lip = 0.6;
@@ -174,7 +186,9 @@ module housing() {
     translate([0, 0, gear_z1]) cylinder(r=counterbore_r, h=lid_z0);
     for (a = tab_angles) rotate(a) tab_recess();
     for (a = window_angles) rotate(a) window();
-    if (bottom_window) translate([0, 0, -eps]) linear_extrude(floor_height + 2 * eps) bottom_window2d();
+    // floor opening inside the shelf, leaving the sun pin's hub and spokes in line with the lid tabs
+    if (bottom_window) translate([0, 0, -eps])
+      linear_extrude(floor_height + 2 * eps) spoked_window2d(hub_r, bottom_window_r, tab_angles);
   }
   // sun gear pivot
   cylinder(d=sun_pin_d, h=sun_pin_z1);
@@ -198,12 +212,12 @@ module window() {
     translate([r0, z0]) square([housing_r + 1 - r0, window_height]);
 }
 
-// Floor opening: everything inside the shelf except the hub and spokes in line with the lid tabs
-module bottom_window2d() {
+// Annular opening from r_in to r_out, less a spoke along each of angles
+module spoked_window2d(r_in, r_out, angles) {
   difference() {
-    circle(r=bottom_window_r);
-    circle(r=hub_r);
-    for (a = tab_angles) rotate(a) translate([0, -spoke_width / 2]) square([bottom_window_r + 1, spoke_width]);
+    circle(r=r_out);
+    circle(r=r_in);
+    for (a = angles) rotate(a) translate([0, -spoke_width / 2]) square([r_out + 1, spoke_width]);
   }
 }
 
@@ -231,13 +245,19 @@ module carrier() {
   difference() {
     union() {
       translate([0, 0, gear_z1]) cylinder(r=counterbore_r - clearance, h=plate_height);
-      for (i = [0:planet_count - 1])
-        rotate(i * 360 / planet_count) translate([center_distance, 0, pin_z0])
+      for (a = planet_angles)
+        rotate(a) translate([center_distance, 0, pin_z0])
           cylinder(d=planet_pin_d, h=gear_z1 - pin_z0 + eps);
     }
     translate([0, 0, gear_z1 - eps]) cylinder(d=shaft_d + 2 * clearance, h=plate_height + 2 * eps);
     translate([0, 0, plate_z1 - socket_depth])
       hex_prism(pointer_hex + 2 * press_clearance, socket_depth + eps);
+    // opening between the pointer's hub and the rim, leaving a spoke through each planet pin
+    if (top_windows) translate([0, 0, gear_z1 - eps]) linear_extrude(plate_height + 2 * eps)
+      difference() {
+        spoked_window2d(pointer_hub_r, top_window_r, planet_angles);
+        for (a = planet_angles) rotate(a) translate([center_distance, 0]) circle(r=pin_boss_r);
+      }
   }
 }
 
@@ -258,6 +278,9 @@ module pointer() {
         ]);
     }
     translate([0, 0, plate_z1 - socket_depth]) cylinder(d=shaft_d + 2 * clearance, h=pointer_z1);
+    // gear ratio, reading outward along the arm
+    translate([(pointer_hub_r + arm_length - arm_w) / 2, 0, pointer_z1 - engrave_depth]) linear_extrude(1)
+      text(str(round(ratio * 10) / 10, ":1"), size=3.5, halign="center", valign="center", font="Liberation Sans:style=Bold");
   }
 }
 
@@ -272,19 +295,19 @@ module lid() {
         [lid_hole_r, lid_z1],
       ]);
     dial();
+    // opening between the ring around the pointer and the dial, leaving spokes in line with the tabs
+    if (top_windows) translate([0, 0, lid_z0 - eps])
+      linear_extrude(lid_height + 2 * eps) spoked_window2d(lid_hub_r, top_window_r, tab_angles);
   }
   for (a = tab_angles) rotate(a) tab();
 }
 
-// Tick every 10 degrees, long ticks every 90, and the gear ratio
+// Tick every 10 degrees, long ticks every 90
 module dial() {
-  depth = 0.6;
   for (i = [0:35]) {
     long = i % 9 == 0;
-    rotate(i * 10) translate([housing_r - (long ? 8 : 5), -0.5, lid_z1 - depth]) cube([long ? 6 : 3, 1, 1]);
+    rotate(i * 10) translate([housing_r - (long ? 8 : 5), -0.5, lid_z1 - engrave_depth]) cube([long ? 6 : 3, 1, 1]);
   }
-  translate([0, -(lid_hole_r + housing_r - 8) / 2, lid_z1 - depth]) linear_extrude(1)
-    text(str(round(ratio * 10) / 10, ":1"), size=5, halign="center", valign="center", font="Liberation Sans:style=Bold");
 }
 
 // Snap tab, flush with the housing wall once seated
