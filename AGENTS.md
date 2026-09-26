@@ -25,7 +25,8 @@ Source formats in use:
 Exports: `.stl`/`.3mf` (print), `.usdz` (AR preview / game), `.obj`/`.mtl`
 (older mesh exports).
 
-`tools/` holds repo scripts (see [USDZ previews](#usdz-previews-on-ios)).
+`tools/` holds repo scripts (see [Checking printability](#checking-printability)
+and [USDZ previews](#usdz-previews-on-ios)).
 
 ## Setup (Apple silicon Mac)
 
@@ -177,16 +178,62 @@ Brian plans to buy an A1 mini or H2S, and prints must also work on a P2S.
 ### Design rules
 
 - Design each part to print without supports where practical — flat face down,
-  overhangs ≤ 45°, bridges short.
+  overhangs ≤ 45°, bridges ≤ ~15 mm, flat ledges ≤ ~1 mm.
+- Keep bridges off functional surfaces (gear teeth, bearing faces). Curved
+  bridge edges and bridges around a hole droop; leave ~0.5 mm below a bridged
+  ceiling that another part seats against.
 - Minimum wall ≈ 1.2 mm (3 perimeters at 0.4 mm); ≥ 2 mm for anything
   load-bearing.
 - Clearances: ~0.2 mm per side for sliding fits, ~0.1 mm for press fits,
   0.3–0.5 mm oversize on holes for screws/bolts. Make these parameters.
 - Holes printed horizontally sag; consider teardrop or flat-topped profiles.
+- The first layer squashes out ("elephant's foot"). Chamfer 0.3–0.5 mm
+  wherever a bed-side edge has to fit or mesh: gear faces, socket and hole
+  mouths, lips that drop into recesses.
+- Layers are the weak direction. Pins, snap tabs and clips printed upright
+  break along layer lines. Print them lying down where you can; otherwise keep
+  bending strain low. For a cantilever of thickness t, free length L and
+  deflection δ, strain ≈ 1.5·t·δ/L². Aim for ≤ 1% in PLA across layers and
+  ≤ 2% in PETG. Lengthen the flexing part before thickening it, and round or
+  chamfer its root.
+- Gears: module ≥ 1.25 with a 0.4 mm nozzle, 20–25° pressure angle,
+  0.1–0.2 mm backlash per mesh, chamfered faces.
+- Engraved text and marks: ≥ 0.5 mm deep with strokes ≥ 0.5 mm (≈ 3.5 mm
+  bold text). They print cleanly on the bed face.
+- Tall parts on a small footprint (height > ~3× base width) need a brim or a
+  wider base, especially on the A1 mini's moving bed.
+- Parts that hold water: PETG, ≥ 4 wall loops, and no seams through thin
+  walls.
 - Export in the print orientation, units mm, one file per separately printed
   part. STL is fine; 3MF is preferred for multi-part or multi-colour (AMS)
   prints.
 - Outdoor parts: suggest ASA or PETG, and stainless hardware.
+
+### Checking printability
+
+`tools/printcheck.swift` checks a part in its print orientation:
+
+```sh
+swift -O tools/printcheck.swift -D 'view="print"' planetary-gearbox/planetary-gearbox.scad
+swift -O tools/printcheck.swift -D 'view="print"' -D 'part="cap"' self-watering-pot/self-watering-pot.scad
+swift -O tools/printcheck.swift lilliecube/cube.stl
+```
+
+- Inputs: `.scad` (rendered through OpenSCAD) or `.stl`, in mm, +Z up; the
+  lowest point is the bed. `-D name=value` overrides `.scad` parameters.
+- Errors (exit 1): OpenSCAD warnings, parts over the P2S's 256 mm, and
+  undersides that start in mid-air.
+- Warnings: parts over the A1 mini's 180 mm, bridges over 15 mm, flat ledges
+  reaching over 1 mm from support, and overhangs past 45°. Each gives a
+  height and an x/y position to look at. It picks the bridge direction per
+  region the way a slicer does.
+- Always pass `-O`. Without it, Swift doesn't optimize and the check is
+  about 40× slower.
+- It doesn't check wall thickness, strength, fits or small features. Read
+  the design rules above and look at a slicer preview for those.
+
+Run it on every part after a geometry change, alongside the render check.
+Tests: `tools/test-printcheck.sh`. Run them after changing the checker.
 
 ## Game meshes (Swift + Metal)
 
