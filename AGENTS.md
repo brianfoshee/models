@@ -219,11 +219,19 @@ size, standing upright on the floor:
 ```sh
 swift tools/usdz.swift dock-charger/dock-charger.scad            # -> dock-charger/dock-charger.usdz
 swift tools/usdz.swift lilliecube/cube.stl /tmp/cube.usdz        # explicit output
+swift tools/usdz.swift -D 'view="exploded"' planetary-gearbox/planetary-gearbox.scad \
+  planetary-gearbox/planetary-gearbox-exploded.usdz               # override .scad parameters
 ```
 
 - Inputs: `.scad` (rendered through OpenSCAD first), `.stl`, `.obj`, `.ply`,
   treated as mm/+Z up. Output: mm (`metersPerUnit = 0.001`), +Y up, centred,
-  single plastic material, smooth shading below a 30° crease angle.
+  smooth shading below a 30° crease angle.
+- Colours: a `.scad` file's `color()` calls carry through as one mesh and
+  plastic material per colour. Uncoloured geometry and mesh inputs get the
+  default blue. OpenSCAD paints faces cut by an uncoloured `difference()` with
+  its colour scheme's cut-face colour even in exports; the converter pins the
+  Cornfield scheme and treats that colour (`#9DCB51`) as uncoloured.
+- `-D name=value` (repeatable) overrides `.scad` parameters, as in OpenSCAD.
 - Output is validated with `usdchecker --arkit` in the tests.
 - Get it onto the phone by AirDrop or by saving to iCloud Drive; tapping the
   file opens AR Quick Look.
