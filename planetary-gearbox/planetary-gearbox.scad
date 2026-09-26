@@ -6,6 +6,8 @@
 // View -> Animate runs it; $t from 0 to 1 is one full turn of the carrier.
 // Origin: gearbox axis on Z, Z=0 at the bottom of the housing; mm, +Z up.
 
+use <gears.scad>
+
 /* [View] */
 view = "assembly"; // [assembly, exploded, print]
 // Part shown in print view
@@ -139,38 +141,8 @@ crank_hub_r = crank_hex / cos(30) / 2 + 2.5;
 
 // ---------------------------------------------------------------- gears
 
-// Involute function, degrees in and out
-function inv(a) = (tan(a) - a * PI / 180) * 180 / PI;
-
-// 2D spur gear with one tooth centered on +X. thicken widens each tooth at the pitch circle
-// (negative for backlash). A ring gear is cut with this shape, so its tooth spaces are these teeth.
-module gear2d(teeth, addendum, dedendum, thicken) {
-  rp = pitch_r(teeth);
-  rb = rp * cos(pressure_angle);
-  ra = rp + addendum;
-  rf = rp - dedendum;
-  r0 = max(rb, rf); // below the base circle the flank is radial
-  half_pitch = 90 / teeth + (thicken / 2) / rp * 180 / PI;
-  half = function(r) max(0.1, half_pitch + inv(pressure_angle) - inv(acos(rb / r)));
-  polar = function(r, a) [r * cos(a), r * sin(a)];
-  steps = 10;
-  radii = [for (i = [0:steps]) r0 + (ra - r0) * i / steps];
-  tooth = concat(
-    [polar(rf - 0.1, -half(r0))],
-    [for (r = radii) polar(r, -half(r))],
-    [for (i = [steps:-1:0]) polar(radii[i], half(radii[i]))],
-    [polar(rf - 0.1, half(r0))]
-  );
-  circle(r=rf, $fn=teeth * 8);
-  for (i = [0:teeth - 1]) rotate(i * 360 / teeth) polygon(tooth);
-}
-
 module external_gear(teeth, height) {
-  linear_extrude(height, convexity=4) gear2d(teeth, m, 1.25 * m, -backlash / 2);
-}
-
-module hex_prism(across_flats, height) {
-  linear_extrude(height) circle(d=across_flats / cos(30), $fn=6);
+  linear_extrude(height, convexity=4) gear2d(teeth, m, pressure_angle, m, 1.25 * m, -backlash / 2);
 }
 
 // ---------------------------------------------------------------- parts
@@ -181,7 +153,7 @@ module housing() {
     rotate_extrude()
       polygon([[0, 0], [housing_r - 0.8, 0], [housing_r, 0.8], [housing_r, lid_z0], [0, lid_z0]]);
     translate([0, 0, gear_z0]) rotate(ring_phase)
-      linear_extrude(gear_height + eps, convexity=4) gear2d(ring_teeth, 1.25 * m, m, backlash / 2);
+      linear_extrude(gear_height + eps, convexity=4) gear2d(ring_teeth, m, pressure_angle, 1.25 * m, m, backlash / 2);
     // pocket for the carrier plate, which rests on the ring teeth
     translate([0, 0, gear_z1]) cylinder(r=counterbore_r, h=lid_z0);
     for (a = tab_angles) rotate(a) tab_recess();
