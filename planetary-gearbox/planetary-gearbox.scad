@@ -33,6 +33,8 @@ clearance = 0.25; // [0.1:0.05:0.5]
 press_clearance = 0.05; // [-0.1:0.025:0.2]
 // Vertical gap between stacked moving parts
 z_gap = 0.3; // [0.1:0.05:0.6]
+// 45-degree chamfer on gear edges and press-fit socket mouths, against elephant's foot
+chamfer = 0.4; // [0:0.1:1]
 
 /* [Housing] */
 floor_height = 3; // [2:0.5:6]
@@ -40,12 +42,6 @@ wall = 2.5; // [1.5:0.25:5]
 sun_pin_d = 5; // [3:0.5:8]
 
 /* [Windows] */
-// Openings in the housing wall, between the lid tabs, to watch the planets go by
-windows = true;
-// Width of each window; its top edge is a bridge of about this arc at the outer wall
-window_angle = 40; // [10:5:70]
-// Taller windows leave thinner bands of ring teeth above and below
-window_height = 5; // [2:0.5:7]
 // Open the floor, leaving a shelf under the ring and spokes out to the sun pin's hub
 bottom_window = true;
 // Width of the shelf the planets ride on, inward from the ring's tooth tips
@@ -67,7 +63,8 @@ pointer_height = 2; // [1:0.5:5]
 /* [Lid] */
 lid_height = 2.4; // [1.5:0.2:5]
 tab_width = 8; // [4:0.5:15]
-tab_length = 11; // [6:0.5:16]
+// Tabs print upright, so flexing them loads the layer lines; longer tabs strain less
+tab_length = 14; // [6:0.5:16]
 tab_thickness = 1.6; // [1:0.1:3]
 barb_depth = 0.8; // [0.3:0.1:1.5]
 
@@ -103,7 +100,6 @@ assert((sun_teeth + ring_teeth) % planet_count == 0, "planets can't be evenly sp
 assert(2 * center_distance * sin(180 / planet_count) > 2 * (pitch_r(planet_teeth) + m) + 1, "planets collide with each other");
 assert(shaft_d / 2 < pitch_r(sun_teeth) - 1.25 * m - 1, "shaft too thick for the sun gear");
 assert(crank_hex / cos(30) < shaft_d, "crank hex must fit inside the shaft to leave a shoulder");
-assert(gear_height - window_height >= 3, "windows must leave at least 1.5 mm of ring teeth above and below");
 assert(!bottom_window || bottom_window_r > hub_r + 5, "shelf too wide for a bottom window");
 assert(!top_windows || pointer_hex / cos(30) / 2 + 1.5 < pointer_hub_r, "pointer hub too small to wall the carrier's hex socket");
 assert(!top_windows || top_window_r < housing_r - 9, "top windows run into the dial's long ticks");
@@ -122,10 +118,11 @@ knob_z0 = crank_z0 + arm_thickness + z_gap;
 knob_z1 = knob_z0 + knob_height;
 sun_pin_z1 = gear_z0 + gear_height * 0.6;
 socket_depth = plate_height - 1.5;
+// Gap past the pointer's hex tip, for droop from the socket's bridged ceiling
+socket_end_gap = 0.5;
 lid_hole_r = pointer_hub_r + 2 * clearance;
 tab_angles = [for (i = [0:2]) i * 120 + 60];
 planet_angles = [for (i = [0:planet_count - 1]) i * 360 / planet_count];
-window_angles = windows ? [for (a = tab_angles) a + 60] : [];
 bottom_window_r = pitch_r(ring_teeth) - m - shelf_width;
 hub_r = sun_pin_d / 2 + 3;
 top_window_r = pitch_r(ring_teeth) - m - rim_overlap;
@@ -142,7 +139,23 @@ crank_hub_r = crank_hex / cos(30) / 2 + 2.5;
 // ---------------------------------------------------------------- gears
 
 module external_gear(teeth, height) {
-  linear_extrude(height, convexity=4) gear2d(teeth, m, pressure_angle, m, 1.25 * m, -backlash / 2);
+  chamfered_extrude(height) gear2d(teeth, m, pressure_angle, m, 1.25 * m, -backlash / 2);
+}
+
+// linear_extrude with the bottom and top edges chamfered by chamfer, in 0.1 mm steps
+module chamfered_extrude(height) {
+  n = ceil(chamfer / 0.1);
+  step = chamfer / n;
+  if (n > 0) for (i = [0:n - 1], end = [0, 1])
+    translate([0, 0, end == 0 ? i * step : height - (i + 1) * step])
+      linear_extrude(step + eps, convexity=4) offset(delta=-(chamfer - i * step)) children();
+  translate([0, 0, chamfer]) linear_extrude(height - 2 * chamfer, convexity=4) children();
+}
+
+// Chamfer widening a hex socket's mouth; mouth at z = 0, socket along +Z
+module hex_mouth_chamfer(across_flats) {
+  translate([0, 0, -eps]) linear_extrude(chamfer + eps, scale=across_flats / (across_flats + 2 * chamfer))
+    circle(d=(across_flats + 2 * chamfer) / cos(30), $fn=6);
 }
 
 // ---------------------------------------------------------------- parts
@@ -157,7 +170,6 @@ module housing() {
     // pocket for the carrier plate, which rests on the ring teeth
     translate([0, 0, gear_z1]) cylinder(r=counterbore_r, h=lid_z0);
     for (a = tab_angles) rotate(a) tab_recess();
-    for (a = window_angles) rotate(a) window();
     // floor opening inside the shelf, leaving the sun pin's hub and spokes in line with the lid tabs
     if (bottom_window) translate([0, 0, -eps])
       linear_extrude(floor_height + 2 * eps) spoked_window2d(hub_r, bottom_window_r, tab_angles);
@@ -174,14 +186,6 @@ module tab_recess() {
     cube([tab_thickness + clearance + 1, w, lid_z0 - tab_z0 + clearance + 1]);
   translate([r_in - barb_depth - clearance, -w / 2, tab_z0 - clearance])
     cube([barb_depth + eps, w, barb_height + clearance + 0.1]);
-}
-
-// Opening through the wall and ring teeth, centered on +X in the middle of the gear band
-module window() {
-  z0 = gear_z0 + (gear_height - window_height) / 2;
-  r0 = pitch_r(ring_teeth) - m - 0.5;
-  rotate(-window_angle / 2) rotate_extrude(angle=window_angle)
-    translate([r0, z0]) square([housing_r + 1 - r0, window_height]);
 }
 
 // Annular opening from r_in to r_out, less a spoke along each of angles
@@ -224,6 +228,7 @@ module carrier() {
     translate([0, 0, gear_z1 - eps]) cylinder(d=shaft_d + 2 * clearance, h=plate_height + 2 * eps);
     translate([0, 0, plate_z1 - socket_depth])
       hex_prism(pointer_hex + 2 * press_clearance, socket_depth + eps);
+    translate([0, 0, plate_z1]) mirror([0, 0, 1]) hex_mouth_chamfer(pointer_hex + 2 * press_clearance);
     // opening between the pointer's hub and the rim, leaving a spoke through each planet pin
     if (top_windows) translate([0, 0, gear_z1 - eps]) linear_extrude(plate_height + 2 * eps)
       difference() {
@@ -238,7 +243,7 @@ module pointer() {
   arm_w = 6;
   difference() {
     union() {
-      translate([0, 0, plate_z1 - socket_depth + 0.2]) hex_prism(pointer_hex, socket_depth - 0.2 + eps);
+      translate([0, 0, plate_z1 - socket_depth + socket_end_gap]) hex_prism(pointer_hex, socket_depth - socket_end_gap + eps);
       translate([0, 0, plate_z1]) cylinder(r=pointer_hub_r, h=pointer_z1 - plate_z1);
       translate([0, 0, pointer_z0]) linear_extrude(pointer_height)
         polygon([
@@ -309,10 +314,12 @@ module crank() {
       translate([crank_length, 0, crank_z0 + arm_thickness - eps]) snap_pin();
     }
     translate([0, 0, crank_z0 - eps]) hex_prism(crank_hex + 2 * press_clearance, crank_hub_height + 2 * eps);
+    translate([0, 0, crank_z0]) hex_mouth_chamfer(crank_hex + 2 * press_clearance);
   }
 }
 
-// Split pin with a barbed tip; the knob spins on it
+// Split pin with a barbed tip; the knob spins on it. It prints upright, so the slot runs
+// nearly to the arm to keep the prongs' bending strain low.
 module snap_pin() {
   h = knob_z1 - 0.1 - (crank_z0 + arm_thickness);
   difference() {
@@ -321,7 +328,7 @@ module snap_pin() {
       translate([0, 0, h - knob_lip_height])
         cylinder(r1=knob_pin_d / 2 + knob_lip, r2=knob_pin_d / 2 - 0.3, h=knob_lip_height);
     }
-    translate([-knob_pin_d, -0.75, h - knob_lip_height - 5]) cube([2 * knob_pin_d, 1.5, knob_lip_height + 5 + eps]);
+    translate([-knob_pin_d, -0.75, 2]) cube([2 * knob_pin_d, 1.5, h - 2 + eps]);
   }
 }
 
