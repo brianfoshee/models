@@ -47,6 +47,8 @@ opening_angle = 20; // [5:1:60]
 cap_clearance = 0.2; // [0:0.05:0.5]
 // Cap top plate, flush in a recess in the rim
 cap_lip = 1.6; // [0.8:0.2:3]
+// 45-degree chamfer on the lip's top edge, which prints on the bed, against elephant's foot
+cap_chamfer = 0.4; // [0:0.1:1]
 // How far the lip reaches past the opening's edges
 cap_overlap = 1; // [0.5:0.1:3]
 // Plug length below the lip
@@ -95,6 +97,8 @@ r_mid = (r_ins_out(H) + r_pot_in(H)) / 2; // middle of the gap at the rim
 function deg(mm) = mm / r_mid * 180 / PI; // arc length at r_mid to degrees
 recess_angle = opening_angle + 2 * deg(cap_overlap);
 
+assert(cap_chamfer < cap_lip, "cap_chamfer must be less than cap_lip");
+
 // ---------------------------------------------------------------- pot
 
 // Half cross-section in the XZ plane, as [r, z] points
@@ -123,6 +127,28 @@ module section() {
 // Ring sector of a [r, z] profile, centred on +X
 module sector(angle) {
   rotate(-angle / 2) rotate_extrude(angle=angle) children();
+}
+
+// Annular sector in the XY plane from radius r0 to r1, centred on +X
+module sector2d(angle, r0, r1) {
+  R = r1 / cos(angle / 2) + 1;
+  intersection() {
+    difference() {
+      circle(r=r1);
+      circle(r=r0);
+    }
+    polygon([[0, 0], [R * cos(angle / 2), -R * sin(angle / 2)], [R * cos(angle / 2), R * sin(angle / 2)]]);
+  }
+}
+
+// linear_extrude with the top edge chamfered by cap_chamfer, in 0.1 mm steps
+module top_chamfered_extrude(height) {
+  n = ceil(cap_chamfer / 0.1);
+  step = n > 0 ? cap_chamfer / n : 0;
+  linear_extrude(height - cap_chamfer + (n > 0 ? eps : 0)) children();
+  for (i = [0:1:n - 1])
+    translate([0, 0, height - cap_chamfer + i * step])
+      linear_extrude(step + (i < n - 1 ? eps : 0)) offset(delta=-(i + 1) * step) children();
 }
 
 module fill_opening() {
@@ -175,9 +201,8 @@ module cap() {
   z1 = H - cap_lip;
   sector(opening_angle - 2 * deg(c))
     translate([r_ins_out(z1) + c, z0]) square([r_pot_in(z0) - r_ins_out(z1) - 2 * c, cap_plug + eps]);
-  sector(recess_angle - 2 * deg(c))
-    translate([r_ins_out(H) - cap_overlap + c, z1])
-      square([r_pot_in(H) - r_ins_out(H) + 2 * cap_overlap - 2 * c, cap_lip]);
+  translate([0, 0, z1]) top_chamfered_extrude(cap_lip)
+    sector2d(recess_angle - 2 * deg(c), r_ins_out(H) - cap_overlap + c, r_pot_in(H) + cap_overlap - c);
 }
 
 // ---------------------------------------------------------------- views
