@@ -78,6 +78,10 @@ expect_line '^OK$' "small lip"
 check 'difference() { cube([30, 30, 6]); translate([10, 10, -1]) cube([10, 10, 4]); }'
 expect_line '^OK$' "pocket ceiling"
 
+# A hex ceiling 14 mm across flats is fine bridged flat to flat, though longer across corners
+check 'difference() { cylinder(r=15, h=6); translate([0, 0, -1]) cylinder(d=14 / cos(30), h=3.5, $fn=6); }'
+expect_line '^OK$' "hex ceiling"
+
 # A ceiling with a through hole in it is only partly bridged: past the hole, a
 # bridge has nothing to land on and the ceiling reaches out from the pocket walls
 check 'difference() { cube([30, 30, 6]); translate([5, 5, -1]) cube([20, 20, 4]); translate([10, 10, -1]) cube([10, 10, 8]); }'

@@ -340,8 +340,10 @@ for region in flat {
   func cost(_ s: Int, _ k: Int) -> Double {
     reach[s] <= maxLedge ? 0 : spans[s][k].isFinite ? spans[s][k] / maxBridge : reach[s] / maxLedge
   }
-  // Summed rather than worst, so parts no direction can bridge don't hide the rest
-  let totals = (0..<bridgeDirections).map { k in samples.indices.map { cost($0, k) }.reduce(0, +) }
+  // Sums how far each sample is over its limit: summed rather than worst, so parts no
+  // direction can bridge don't hide the rest, and only overages, so a direction within
+  // the limits everywhere wins over one that is shorter on average
+  let totals = (0..<bridgeDirections).map { k in samples.indices.map { max(0, cost($0, k) - 1) }.reduce(0, +) }
   let best = totals.indices.min { totals[$0] < totals[$1] }!
   var longestSpan = 0.0
   var farthestReach = 0.0
