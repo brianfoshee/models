@@ -20,7 +20,9 @@ let p2sSize = 256.0
 let maxOverhang = 45.0 // degrees from vertical
 let maxBridge = 15.0 // mm between the supports a bridge lands on
 let maxLedge = 1.0 // mm a flat underside may stick out from the wall below it
-let bridgeDirections = 36
+let lineWidth = 0.4 // mm; a bridge line holds up what's within half of this
+let bridgeDirections = 36 // evenly spread over 180°
+let wallDirections = 8 // also tried: straight across the longest walls a region rests on
 let maxSamples = 5000.0 // per flat region; spacing grows past this
 let zTolerance = 1e-4
 let flatNormalZ = -0.9999 // faces pointing further down than this are flat
@@ -287,6 +289,33 @@ func landing(_ p: Point, _ u: Point, _ boundary: [Boundary]) -> Double {
   return supported ? nearest : .infinity
 }
 
+// Directions to try bridging in: an even fan, plus straight across the walls that
+// support a region, grouped to the nearest degree and longest first. A slicer bridges
+// from wall to wall, and a fan direction a little off it misses a wall near open ends.
+func bridgeAngles(_ supports: [Boundary]) -> [Double] {
+  var walls: [Int: (total: Double, longest: Double, angle: Double)] = [:]
+  for e in supports {
+    let d = e.b - e.a
+    let length = (d * d).sum().squareRoot()
+    var angle = (atan2(d.y, d.x) + Double.pi / 2).truncatingRemainder(dividingBy: Double.pi)
+    if angle < 0 { angle += Double.pi }
+    let key = Int((angle * 180 / Double.pi).rounded()) % 180
+    let w = walls[key] ?? (0, 0, angle)
+    walls[key] = (w.total + length, max(w.longest, length), length > w.longest ? angle : w.angle)
+  }
+  let fan = (0..<bridgeDirections).map { Double.pi * Double($0) / Double(bridgeDirections) }
+  return fan + walls.values.sorted { $0.total > $1.total }.prefix(wallDirections).map(\.angle)
+}
+
+// Whether p is inside the region the boundary encloses, by counting crossings along +X
+func inside(_ p: Point, _ boundary: [Boundary]) -> Bool {
+  var crossings = 0
+  for e in boundary where (e.a.y > p.y) != (e.b.y > p.y) {
+    if e.a.x + (p.y - e.a.y) / (e.b.y - e.a.y) * (e.b.x - e.a.x) > p.x { crossings += 1 }
+  }
+  return crossings % 2 == 1
+}
+
 var bridges: [(z: Double, message: String)] = []
 var ledges: [(z: Double, message: String)] = []
 let flat = regions { i in normalZ[i] < flatNormalZ && !onBed.contains(i) }
@@ -329,11 +358,16 @@ for region in flat {
     }
   }
   let reach = samples.map { p in supports.map { distance(p, $0.a, $0.b) }.min()! }
+  let angles = bridgeAngles(supports)
   let spans = samples.map { p in
-    (0..<bridgeDirections).map { k -> Double in
-      let angle = Double.pi * Double(k) / Double(bridgeDirections)
+    angles.map { angle -> Double in
       let u = Point(cos(angle), sin(angle))
-      return landing(p, u, boundary) + landing(p, -u, boundary)
+      let span = landing(p, u, boundary) + landing(p, -u, boundary)
+      if span.isFinite { return span }
+      // a line passing beside p within half a line width holds it up too
+      let n = Point(-u.y, u.x) * (lineWidth / 2)
+      return [p + n, p - n].filter { inside($0, boundary) }
+        .map { landing($0, u, boundary) + landing($0, -u, boundary) }.min() ?? span
     }
   }
   // A sample close to a wall is held by it; a farther one needs a bridge, or it is a ledge
@@ -343,7 +377,7 @@ for region in flat {
   // Sums how far each sample is over its limit: summed rather than worst, so parts no
   // direction can bridge don't hide the rest, and only overages, so a direction within
   // the limits everywhere wins over one that is shorter on average
-  let totals = (0..<bridgeDirections).map { k in samples.indices.map { max(0, cost($0, k) - 1) }.reduce(0, +) }
+  let totals = angles.indices.map { k in samples.indices.map { max(0, cost($0, k) - 1) }.reduce(0, +) }
   let best = totals.indices.min { totals[$0] < totals[$1] }!
   var longestSpan = 0.0
   var farthestReach = 0.0

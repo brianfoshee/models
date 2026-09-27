@@ -78,6 +78,15 @@ expect_line '^OK$' "small lip"
 check 'difference() { cube([30, 30, 6]); translate([10, 10, -1]) cube([10, 10, 4]); }'
 expect_line '^OK$' "pocket ceiling"
 
+# A horizontal hole's flat top is bridged wall to wall, even turned off the directions
+# printcheck samples: bridge lines along its open ends still land on both walls
+check 'rotate(2.5) difference() { translate([-10, -2, 0]) cube([20, 4, 10]); translate([-6, -5, 4]) cube([12, 10, 3]); }'
+expect_line '^OK$' "turned hole ceiling"
+# Through a round wall the hole's ends are arcs, bowing slightly past the lines along
+# them, but no more than a bridge line's half width
+check 'rotate(7) difference() { cylinder(r=50, h=10); translate([0, 0, -1]) cylinder(r=46, h=12); translate([44, -1.5, 4]) cube([10, 3, 3]); }'
+expect_line '^OK$' "hole through a round wall"
+
 # A hex ceiling 14 mm across flats is fine bridged flat to flat, though longer across corners
 check 'difference() { cylinder(r=15, h=6); translate([0, 0, -1]) cylinder(d=14 / cos(30), h=3.5, $fn=6); }'
 expect_line '^OK$' "hex ceiling"
