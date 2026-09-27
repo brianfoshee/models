@@ -41,8 +41,8 @@ clearance = 0.25; // [0.1:0.05:0.5]
 press_clearance = 0.05; // [-0.1:0.025:0.2]
 // Vertical gap between stacked moving parts
 z_gap = 0.3; // [0.1:0.05:0.6]
-// 45-degree chamfer on gear edges, the ring's faces, and the mouths of the collar and the
-// press-fit sockets, against elephant's foot
+// 45-degree chamfer on gear edges, the ring's faces, the mouths of the collar and the
+// press-fit sockets, and the shift pins' bed-side edges, against elephant's foot
 chamfer = 0.4; // [0:0.1:1]
 
 /* [Housing] */
@@ -353,9 +353,14 @@ module collar() {
   }
 }
 
-// Square pin along +X from the ring's groove out through the collar, with a head to push on
+// Square pin along +X from the ring's groove out through the collar, with a head to push on.
+// It prints lying as modeled, so its long bottom edges are chamfered to press into the collar.
 module shift_pin() {
-  translate([pin_tip_r, -pin_size / 2, pin_z - pin_size / 2]) cube([collar_out_r - pin_tip_r, pin_size, pin_size]);
+  length = collar_out_r - pin_tip_r;
+  translate([pin_tip_r, -pin_size / 2, pin_z - pin_size / 2]) hull() {
+    translate([0, chamfer, 0]) cube([length, pin_size - 2 * chamfer, eps]);
+    translate([0, 0, chamfer]) cube([length, pin_size, pin_size - chamfer]);
+  }
   translate([collar_out_r - eps, -pin_size, pin_z - pin_size / 2]) cube([pin_head + eps, 2 * pin_size, pin_size]);
 }
 
