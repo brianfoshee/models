@@ -1,7 +1,8 @@
 // Planetary gearbox desk toy. Turn the crank (sun gear); the ring gear is fixed in the
 // housing, so the carrier and its pointer turn 1 / (1 + ring_teeth / sun_teeth) as fast.
 // Every part prints without supports and assembles without hardware:
-//   housing <- sun + planets, carrier onto the planets, lid snaps on,
+//   housing <- sun + planets, carrier onto the planets (push out the skin over its shaft hole
+//   first), lid snaps on,
 //   pointer presses into the carrier, crank presses onto the sun, knob snaps onto the crank.
 // View -> Animate runs it; $t from 0 to 1 is one full turn of the carrier.
 // Origin: gearbox axis on Z, Z=0 at the bottom of the housing; mm, +Z up.
@@ -59,6 +60,9 @@ planet_pin_d = 7; // [3:0.5:10]
 pointer_hex = 14; // [8:1:20]
 pointer_hub_r = 12; // [8:0.5:20]
 pointer_height = 2; // [1:0.5:5]
+// Skin across the carrier's shaft hole at the socket's ceiling, so the ceiling prints as a
+// plain bridge; push it out before assembly. Thicker than a layer, so some layer holds it
+sacrificial_skin = 0.3; // [0:0.05:0.6]
 
 /* [Lid] */
 lid_height = 2.4; // [1.5:0.2:5]
@@ -225,7 +229,8 @@ module carrier() {
         rotate(a) translate([center_distance, 0, pin_z0])
           cylinder(d=planet_pin_d, h=gear_z1 - pin_z0 + eps);
     }
-    translate([0, 0, gear_z1 - eps]) cylinder(d=shaft_d + 2 * clearance, h=plate_height + 2 * eps);
+    translate([0, 0, gear_z1 - eps])
+      cylinder(d=shaft_d + 2 * clearance, h=plate_height - socket_depth - sacrificial_skin + 2 * eps);
     translate([0, 0, plate_z1 - socket_depth])
       hex_prism(pointer_hex + 2 * press_clearance, socket_depth + eps);
     translate([0, 0, plate_z1]) mirror([0, 0, 1]) hex_mouth_chamfer(pointer_hex + 2 * press_clearance);
