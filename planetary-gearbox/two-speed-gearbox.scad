@@ -5,10 +5,12 @@
 //   neutral: the ring is free, so the crank turns nothing;
 //   direct:  dogs under the carrier lock the ring to it, so everything turns together at 1:1.
 // Each gear sits in a flat step of the slots in the housing wall, so the collar stays put.
-// Every part prints without supports and assembles without hardware:
+// Every part prints without supports, except the flat steps of the housing's slots (let the
+// slicer add them), and assembles without hardware:
 //   ring into housing, collar over housing, pins press through the collar into the ring's groove,
-//   sun + planets, carrier onto the planets, lid snaps on, pointer presses into the carrier,
-//   crank presses onto the sun, knob snaps onto the crank.
+//   sun + planets, carrier onto the planets (push out the skin over its shaft hole first),
+//   lid snaps on, pointer presses into the carrier, crank presses onto the sun,
+//   knob snaps onto the crank.
 // View -> Animate runs it; $t from 0 to 1 is one full turn of the carrier (of the sun in neutral).
 // Origin: gearbox axis on Z, Z=0 at the bottom of the housing; mm, +Z up.
 
@@ -39,6 +41,9 @@ clearance = 0.25; // [0.1:0.05:0.5]
 press_clearance = 0.05; // [-0.1:0.025:0.2]
 // Vertical gap between stacked moving parts
 z_gap = 0.3; // [0.1:0.05:0.6]
+// 45-degree chamfer on gear edges, the ring's faces, and the mouths of the collar and the
+// press-fit sockets, against elephant's foot
+chamfer = 0.4; // [0:0.1:1]
 
 /* [Housing] */
 floor_height = 3; // [2:0.5:6]
@@ -49,7 +54,8 @@ sun_pin_d = 5; // [3:0.5:8]
 // Ring material behind the tooth roots; the dog notches and the pin groove are cut into it
 ring_wall = 4; // [3:0.25:6]
 // Dogs on the housing floor and under the carrier, and notches in each face of the ring
-dog_count = 8; // [4:1:12]
+// 9 or more keeps the bridged ceilings of the ring's bed-side notches under 15 mm
+dog_count = 9; // [4:1:12]
 dog_height = 2; // [1:0.25:4]
 // Angular play between each dog and its notch; more is easier to shift and sloppier to turn
 dog_play = 3; // [1:0.5:8]
@@ -81,11 +87,15 @@ planet_pin_d = 7; // [3:0.5:10]
 pointer_hex = 14; // [8:1:20]
 pointer_hub_r = 12; // [8:0.5:20]
 pointer_height = 2; // [1:0.5:5]
+// Skin across the carrier's shaft hole at the socket's ceiling, so the ceiling prints as a
+// plain bridge; push it out before assembly. Thicker than a layer, so some layer holds it
+sacrificial_skin = 0.3; // [0:0.05:0.6]
 
 /* [Lid] */
 lid_height = 2.4; // [1.5:0.2:5]
 tab_width = 8; // [4:0.5:15]
-tab_length = 11; // [6:0.5:16]
+// Tabs print upright, so flexing them loads the layer lines; longer tabs strain less
+tab_length = 14; // [6:0.5:16]
 tab_thickness = 1.6; // [1:0.1:3]
 barb_depth = 0.8; // [0.3:0.1:1.5]
 
@@ -125,7 +135,8 @@ ring_phase = planet_teeth % 2 == 0 ? 180 / ring_teeth : 0;
 
 // Ring travel from one gear to the next: clear the dogs, plus the gap
 shift_step = dog_height + dog_gap;
-notch_depth = dog_height + z_gap;
+// Gap past the dogs' tips, for droop from the bridged ceilings of the ring's bed-side notches
+notch_depth = dog_height + 0.5;
 notch_angle = 180 / dog_count;
 dog_angle = notch_angle - dog_play;
 dog_chamfer = 0.5;
@@ -150,6 +161,8 @@ knob_z0 = crank_z0 + arm_thickness + z_gap;
 knob_z1 = knob_z0 + knob_height;
 sun_pin_z1 = gear_z0 + gear_height * 0.6;
 socket_depth = plate_height - 1.5;
+// Gap past the pointer's hex tip, for droop from the socket's bridged ceiling
+socket_end_gap = 0.5;
 lid_hole_r = pointer_hub_r + 2 * clearance;
 tab_angles = [for (i = [0:2]) i * 120 + 60];
 planet_angles = [for (i = [0:planet_count - 1]) i * 360 / planet_count];
@@ -178,7 +191,9 @@ pin_head = 2;
 slot_angles = [for (a = tab_angles) a + 60];
 // Gate slot, as [angle, z] of the pin's center: a flat dwell for each gear, joined by 45 degree ramps
 dwell_a = dwell_length / housing_r * 180 / PI;
-ramp_a = shift_step / housing_r * 180 / PI;
+// Outer end of the slot cutters; the ramps are 45 degrees there and steeper further in
+slot_out_r = housing_r + 1;
+ramp_a = shift_step / slot_out_r * 180 / PI;
 gate_start = -(3 * dwell_a + 2 * ramp_a) / 2;
 gate_path = [
   for (i = [0:2]) each [
@@ -188,7 +203,7 @@ gate_path = [
 ];
 // Where the pins sit in each gear, measured from the slot's center
 function level_angle(i) = gate_start + i * (dwell_a + ramp_a) + dwell_a / 2;
-label_size = 3;
+label_size = 3.5;
 // Gear names engraved on the housing above each dwell, clear of the collar in direct
 label_z = pin_z + 2 * shift_step + collar_height / 2 + 0.5 + label_size / 2;
 labels = [str(round(ratio * 10) / 10, ":1"), "N", "1:1"];
@@ -210,7 +225,7 @@ assert(-gate_start + (groove_w / 2 + 1) / housing_r * 180 / PI < 60 - (tab_width
 // ---------------------------------------------------------------- shapes
 
 module external_gear(teeth, height) {
-  linear_extrude(height, convexity=4) gear2d(teeth, m, pressure_angle, m, 1.25 * m, -backlash / 2);
+  chamfered_extrude(height, chamfer) gear2d(teeth, m, pressure_angle, m, 1.25 * m, -backlash / 2);
 }
 
 // Pie slice of radius r centered on +X
@@ -282,7 +297,7 @@ module gate_slot() {
   for (i = [0:len(gate_path) - 2]) hull() {
     for (p = [gate_path[i], gate_path[i + 1]])
       rotate(p[0]) translate([bore_r - 1, -groove_w / 2, pin_z + p[1] - groove_w / 2])
-        cube([housing_r - bore_r + 2, groove_w, groove_w]);
+        cube([slot_out_r - bore_r + 1, groove_w, groove_w]);
   }
 }
 
@@ -299,9 +314,10 @@ module ring() {
   groove_z0 = pin_z - groove_w / 2;
   groove_z1 = pin_z + groove_w / 2;
   difference() {
-    translate([0, 0, gear_z0]) cylinder(r=ring_r, h=ring_height);
-    translate([0, 0, gear_z0 - eps]) rotate(ring_phase)
-      linear_extrude(ring_height + 2 * eps, convexity=4) gear2d(ring_teeth, m, pressure_angle, 1.25 * m, m, backlash / 2);
+    translate([0, 0, gear_z0]) chamfered_extrude(ring_height, chamfer) difference() {
+      circle(r=ring_r);
+      rotate(ring_phase) gear2d(ring_teeth, m, pressure_angle, 1.25 * m, m, backlash / 2);
+    }
     // groove the pins ride in; its top is chamfered to print without support
     rotate_extrude()
       polygon([
@@ -313,6 +329,8 @@ module ring() {
     for (a = dog_angles) rotate(a) {
       translate([0, 0, gear_z0 - eps]) linear_extrude(notch_depth + eps) notch2d();
       translate([0, 0, z1 - notch_depth]) linear_extrude(notch_depth + eps) notch2d();
+      translate([0, 0, gear_z0]) chamfered_mouth(chamfer) notch2d();
+      translate([0, 0, z1]) mirror([0, 0, 1]) chamfered_mouth(chamfer) notch2d();
     }
   }
 }
@@ -329,6 +347,7 @@ module collar() {
   translate([0, 0, collar_z0]) difference() {
     cylinder(r=collar_out_r, h=collar_height);
     translate([0, 0, -eps]) cylinder(r=collar_r, h=collar_height + 2 * eps);
+    translate([0, 0, -eps]) cylinder(r1=collar_r + chamfer + eps, r2=collar_r, h=chamfer + eps);
     for (a = slot_angles) rotate(a + level_angle(0))
       translate([collar_r - 1, -hole / 2, collar_height / 2 - hole / 2]) cube([collar_wall + 2, hole, hole]);
   }
@@ -370,9 +389,11 @@ module carrier() {
       for (a = dog_angles)
         rotate(a) translate([0, 0, gear_z1 + eps]) mirror([0, 0, 1]) dog(notch_r + clearance, ring_r - clearance);
     }
-    translate([0, 0, gear_z1 - eps]) cylinder(d=shaft_d + 2 * clearance, h=plate_height + 2 * eps);
+    translate([0, 0, gear_z1 - eps])
+      cylinder(d=shaft_d + 2 * clearance, h=plate_height - socket_depth - sacrificial_skin + 2 * eps);
     translate([0, 0, plate_z1 - socket_depth])
       hex_prism(pointer_hex + 2 * press_clearance, socket_depth + eps);
+    translate([0, 0, plate_z1]) mirror([0, 0, 1]) hex_mouth_chamfer(pointer_hex + 2 * press_clearance, chamfer);
     // opening between the pointer's hub and the rim, leaving a spoke through each planet pin
     if (top_windows) translate([0, 0, gear_z1 - eps]) linear_extrude(plate_height + 2 * eps)
       difference() {
@@ -387,7 +408,7 @@ module pointer() {
   arm_w = 6;
   difference() {
     union() {
-      translate([0, 0, plate_z1 - socket_depth + 0.2]) hex_prism(pointer_hex, socket_depth - 0.2 + eps);
+      translate([0, 0, plate_z1 - socket_depth + socket_end_gap]) hex_prism(pointer_hex, socket_depth - socket_end_gap + eps);
       translate([0, 0, plate_z1]) cylinder(r=pointer_hub_r, h=pointer_z1 - plate_z1);
       translate([0, 0, pointer_z0]) linear_extrude(pointer_height)
         polygon([
@@ -455,10 +476,12 @@ module crank() {
       translate([crank_length, 0, crank_z0 + arm_thickness - eps]) snap_pin();
     }
     translate([0, 0, crank_z0 - eps]) hex_prism(crank_hex + 2 * press_clearance, crank_hub_height + 2 * eps);
+    translate([0, 0, crank_z0]) hex_mouth_chamfer(crank_hex + 2 * press_clearance, chamfer);
   }
 }
 
-// Split pin with a barbed tip; the knob spins on it
+// Split pin with a barbed tip; the knob spins on it. It prints upright, so the slot runs
+// nearly to the arm to keep the prongs' bending strain low.
 module snap_pin() {
   h = knob_z1 - 0.1 - (crank_z0 + arm_thickness);
   difference() {
@@ -467,7 +490,7 @@ module snap_pin() {
       translate([0, 0, h - knob_lip_height])
         cylinder(r1=knob_pin_d / 2 + knob_lip, r2=knob_pin_d / 2 - 0.3, h=knob_lip_height);
     }
-    translate([-knob_pin_d, -0.75, h - knob_lip_height - 5]) cube([2 * knob_pin_d, 1.5, knob_lip_height + 5 + eps]);
+    translate([-knob_pin_d, -0.75, 2]) cube([2 * knob_pin_d, 1.5, h - 2 + eps]);
   }
 }
 

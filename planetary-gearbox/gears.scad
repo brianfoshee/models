@@ -27,6 +27,35 @@ module gear2d(teeth, m, pressure_angle, addendum, dedendum, thicken) {
   for (i = [0:teeth - 1]) rotate(i * 360 / teeth) polygon(tooth);
 }
 
+eps = 0.01;
+
 module hex_prism(across_flats, height) {
   linear_extrude(height) circle(d=across_flats / cos(30), $fn=6);
+}
+
+// linear_extrude with the bottom and top edges chamfered by chamfer, in 0.1 mm steps
+module chamfered_extrude(height, chamfer) {
+  n = ceil(chamfer / 0.1);
+  step = chamfer / n;
+  // each layer overlaps its neighbour toward the middle by eps, so they fuse
+  if (n > 0) for (i = [0:n - 1], end = [0, 1])
+    translate([0, 0, end == 0 ? i * step : height - (i + 1) * step - eps])
+      linear_extrude(step + eps, convexity=4) offset(delta=-(chamfer - i * step)) children();
+  translate([0, 0, chamfer]) linear_extrude(height - 2 * chamfer, convexity=4) children();
+}
+
+// Cutter widening the mouth of an opening shaped like children() by chamfer, in 0.1 mm
+// steps; mouth at z = 0, opening along +Z
+module chamfered_mouth(chamfer) {
+  n = ceil(chamfer / 0.1);
+  step = chamfer / n;
+  if (n > 0) for (i = [0:n - 1])
+    translate([0, 0, i * step - eps])
+      linear_extrude(step + eps, convexity=4) offset(delta=chamfer - i * step) children();
+}
+
+// Chamfer widening a hex socket's mouth; mouth at z = 0, socket along +Z
+module hex_mouth_chamfer(across_flats, chamfer) {
+  translate([0, 0, -eps]) linear_extrude(chamfer + eps, scale=across_flats / (across_flats + 2 * chamfer))
+    circle(d=(across_flats + 2 * chamfer) / cos(30), $fn=6);
 }

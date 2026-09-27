@@ -143,23 +143,7 @@ crank_hub_r = crank_hex / cos(30) / 2 + 2.5;
 // ---------------------------------------------------------------- gears
 
 module external_gear(teeth, height) {
-  chamfered_extrude(height) gear2d(teeth, m, pressure_angle, m, 1.25 * m, -backlash / 2);
-}
-
-// linear_extrude with the bottom and top edges chamfered by chamfer, in 0.1 mm steps
-module chamfered_extrude(height) {
-  n = ceil(chamfer / 0.1);
-  step = chamfer / n;
-  if (n > 0) for (i = [0:n - 1], end = [0, 1])
-    translate([0, 0, end == 0 ? i * step : height - (i + 1) * step])
-      linear_extrude(step + eps, convexity=4) offset(delta=-(chamfer - i * step)) children();
-  translate([0, 0, chamfer]) linear_extrude(height - 2 * chamfer, convexity=4) children();
-}
-
-// Chamfer widening a hex socket's mouth; mouth at z = 0, socket along +Z
-module hex_mouth_chamfer(across_flats) {
-  translate([0, 0, -eps]) linear_extrude(chamfer + eps, scale=across_flats / (across_flats + 2 * chamfer))
-    circle(d=(across_flats + 2 * chamfer) / cos(30), $fn=6);
+  chamfered_extrude(height, chamfer) gear2d(teeth, m, pressure_angle, m, 1.25 * m, -backlash / 2);
 }
 
 // ---------------------------------------------------------------- parts
@@ -233,7 +217,7 @@ module carrier() {
       cylinder(d=shaft_d + 2 * clearance, h=plate_height - socket_depth - sacrificial_skin + 2 * eps);
     translate([0, 0, plate_z1 - socket_depth])
       hex_prism(pointer_hex + 2 * press_clearance, socket_depth + eps);
-    translate([0, 0, plate_z1]) mirror([0, 0, 1]) hex_mouth_chamfer(pointer_hex + 2 * press_clearance);
+    translate([0, 0, plate_z1]) mirror([0, 0, 1]) hex_mouth_chamfer(pointer_hex + 2 * press_clearance, chamfer);
     // opening between the pointer's hub and the rim, leaving a spoke through each planet pin
     if (top_windows) translate([0, 0, gear_z1 - eps]) linear_extrude(plate_height + 2 * eps)
       difference() {
@@ -319,7 +303,7 @@ module crank() {
       translate([crank_length, 0, crank_z0 + arm_thickness - eps]) snap_pin();
     }
     translate([0, 0, crank_z0 - eps]) hex_prism(crank_hex + 2 * press_clearance, crank_hub_height + 2 * eps);
-    translate([0, 0, crank_z0]) hex_mouth_chamfer(crank_hex + 2 * press_clearance);
+    translate([0, 0, crank_z0]) hex_mouth_chamfer(crank_hex + 2 * press_clearance, chamfer);
   }
 }
 
