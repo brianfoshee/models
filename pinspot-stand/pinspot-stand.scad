@@ -1,15 +1,20 @@
-// Tabletop stand for an ADJ Pinspot LED II: a disc base with a post that the light's own
-// hanging bracket bolts down onto, so it pans on the bolt and tilts on the bracket's knob.
+// Tabletop stand for an ADJ Pinspot LED II, with no hardware: the light's own hanging bracket
+// slides its tab into a slot on top of the post, and a printed peg dropped through the tab's
+// bolt hole locks it there. Tilt is the bracket's knob; pan is turning the stand on the table.
 // Origin: post axis, Z=0 at the underside of the base (the bed). The lens points +X.
-// Prints as modelled, base down. The bolt screws into a thread printed in the post.
+// The stand prints as modelled, base down, with the slot's mouth on its -Y side. The peg
+// prints head down.
 
 /* [View] */
 view = "assembly"; // [assembly, exploded, print]
-// Light, bolt and washer in the assembly views, for illustration
-show_hardware = true;
-explode_gap = 30; // [0:1:100]
-// Tilt of the light on its bracket knob, up from horizontal
-tilt = 10; // [-60:1:60]
+// Which part the print view lays out
+part = "all"; // [all, stand, peg]
+// Light in the assembly views, for illustration
+show_light = true;
+explode_gap = 40; // [0:1:100]
+// Tilt of the light on its bracket knob, up from horizontal. Past about 65 degrees the body
+// hits the post; that limit is set by the bracket, not the stand
+tilt = 45; // [-60:1:65]
 
 /* [Base] */
 base_d = 160; // [80:1:180]
@@ -18,23 +23,38 @@ base_t = 6; // [3:0.5:15]
 base_chamfer = 2; // [0:0.5:5]
 
 /* [Post] */
-post_d = 32; // [20:1:60]
-// Height of the bracket's seat above the base
-post_h = 45; // [20:1:150]
+post_d = 50; // [30:1:80]
+// Height of the post above the base
+post_h = 30; // [15:1:100]
 // 45 degree flare where the post meets the base
 post_flare = 8; // [0:1:20]
 
-/* [Bolt] */
-// M8 x 1.25 bolt down through the bracket's hole into a thread printed in the post
-bolt_d = 8; // [4:0.5:12]
-bolt_pitch = 1.25; // [0.5:0.05:2]
-// Extra radius on the printed thread so the bolt turns in freely
-thread_clearance = 0.2; // [0:0.05:0.5]
-// Bolt length under the head; the hole is as deep as it takes for the bolt to end just short of the bottom
-bolt_l = 25; // [10:1:60]
-// Washer under the bolt head (M8, ISO 7089), spanning the bracket's larger hole
-washer_d = 16; // [8:0.5:30]
-washer_t = 1.6; // [0.5:0.1:4]
+/* [Slot] */
+// Clearance per side around the bracket's tab, so it slides in by hand
+slot_clearance = 0.2; // [0:0.05:0.5]
+// How far the lips reach in over each edge of the tab, holding it down. Their undersides
+// slope at 45 degrees so nothing bridges; the opening between them is too narrow to drop the tab in
+lip = 3; // [1:0.5:6]
+// Lip thickness above its slope
+lip_t = 2; // [1:0.5:5]
+// Solid wall beside the slot at the post's mouth face
+wall = 4; // [2:0.5:10]
+// 45 degree lead-in around the mouth, for starting the tab
+mouth_chamfer = 1; // [0:0.25:3]
+
+/* [Peg] */
+// The peg drops through the bracket's bolt hole into a socket in the slot's floor; its head
+// rests on the tab, between the lips. Clearance per side to the bracket's hole
+peg_clearance = 0.15; // [0:0.05:0.5]
+// Clearance per side to the socket in the floor
+socket_clearance = 0.2; // [0:0.05:0.5]
+// How far the peg goes into the floor
+peg_depth = 8; // [4:0.5:15]
+head_d = 16; // [8:0.5:25]
+head_h = 5; // [2:0.5:10]
+// Chamfer on the head's bed-side edge (elephant's foot) and lead-in on the tip
+peg_chamfer = 0.5; // [0:0.1:1]
+tip_chamfer = 1; // [0:0.25:3]
 
 /* [Pinspot] */
 // ADJ Pinspot LED II, drawn for illustration and to check clearances. Only the overall size
@@ -55,7 +75,7 @@ pin_pivot_x = 72; // [20:0.5:150]
 // Pivot hub on the body's side, between the body and the bracket arm
 pin_hub_d = 26; // [10:0.5:40]
 pin_hub_l = 13; // [3:0.5:30]
-// Bracket bar
+// Bracket bar. Width and thickness size the slot
 pin_bracket_w = 27; // [15:0.5:40]
 pin_bracket_t = 3; // [1:0.1:5]
 // Pivot axis to the tab's underside, along the arm
@@ -84,23 +104,32 @@ pin_cord_l = 40; // [0:1:100]
 $fn = 64;
 eps = 0.01;
 
-seat_z = base_t + post_h; // top of the post, where the bracket's tab sits
-// Thread sizes (ISO 68 internal, plus clearance) and the blind hole's depth
-thread_major = bolt_d + 2 * thread_clearance;
-thread_minor = bolt_d - 1.0825 * bolt_pitch + 2 * thread_clearance;
-thread_depth = bolt_l - pin_bracket_t - washer_t + 2;
-assert(thread_depth >= 5 * bolt_pitch, "bolt_l is too short to catch more than a few threads");
-assert(thread_depth + 3 <= post_h, "bolt_l is too long: the hole would reach the base");
-
-// Standard sizes of the hardware drawn in the assembly: ISO 4017 head
-bolt_head = [13, 5.3]; // M8 [across flats, height]
-hardware_color = "#b8bec4";
+post_top = base_t + post_h;
+slot_w = pin_bracket_w + 2 * slot_clearance;
+slot_h = pin_bracket_t + 2 * slot_clearance;
+slot_floor = post_top - slot_h - lip - lip_t;
+// Mouth face: a flat on the post's -Y side wide enough for the slot plus a wall each side
+assert(post_d > slot_w + 2 * wall, "post_d is too thin for the slot and a wall each side");
+mouth_y = -sqrt(pow(post_d / 2, 2) - pow(slot_w / 2 + wall, 2));
+assert(slot_floor > base_t + post_flare + 2, "post_h is too short for the slot above the flare");
+assert(mouth_y + pin_tab_l - pin_bracket_t < post_d / 2, "the tab would stick out the back of the post");
 
 // Pinspot frame: the tab's hole on the Z axis, the tab's underside at Z=0, the arm on the
 // -Y side and the body above, lens toward +X
 pin_arm_y = -pin_tab_hole_x; // arm's outer face
 pin_body_y = pin_arm_y + pin_bracket_t + pin_hub_l + pin_rear_d / 2; // body axis
 pin_pivot_z = pin_bracket_t + pin_arm_rise;
+
+// Where the tab's hole lands with the tab slid in and the arm against the mouth face
+tab_y = mouth_y + pin_tab_hole_x - pin_bracket_t;
+tab_top = slot_floor + slot_clearance + pin_bracket_t;
+
+peg_d = pin_tab_hole_d - 2 * peg_clearance;
+// Shank from the head's underside to the tip: through the tab's space and into the floor,
+// stopping short of the socket's bottom so the head seats on the tab
+peg_l = slot_h + peg_depth - 0.5;
+assert(head_d + 1 <= slot_w - 2 * lip, "head_d doesn't fit between the lips");
+assert(slot_floor - peg_depth > base_t + post_flare, "peg_depth reaches down into the post's flare");
 
 // ---------------------------------------------------------------- stand
 
@@ -115,30 +144,54 @@ module base() {
     ]);
 }
 
+// Cylinder with its flare, cut flat on the -Y side for the slot's mouth
 module post() {
-  translate([0, 0, base_t - eps]) {
-    cylinder(d=post_d, h=post_h + eps);
-    cylinder(d1=post_d + 2 * post_flare, d2=post_d, h=post_flare);
+  r = post_d / 2 + post_flare;
+  intersection() {
+    translate([0, 0, base_t - eps]) {
+      cylinder(d=post_d, h=post_h + eps);
+      cylinder(d1=2 * r, d2=post_d, h=post_flare);
+    }
+    translate([-r - 1, mouth_y, 0]) cube([2 * r + 2, r + 1, post_top + 1]);
   }
 }
 
-// Internal V thread: the hole's radius runs from the minor to the major diameter and back
-// once per turn, so twisting that profile one turn per pitch sweeps the groove down a helix
-module thread_cut(h) {
-  n = 72;
-  profile = [
-    for (i = [0:n - 1])
-      let(a = 360 * i / n, r = (thread_minor + (thread_major - thread_minor) * (1 - abs(1 - 2 * i / n))) / 2)
-        r * [cos(a), sin(a)],
-  ];
-  linear_extrude(h, twist=-360 * h / bolt_pitch, slices=ceil(h / bolt_pitch * n / 2), convexity=10)
-    polygon(profile);
+// Slot cross-section in the XZ plane, floor at z=0: the tab's space, lips sloping in over
+// it at 45 degrees, and the opening between the lips up through the top of the post
+module slot_profile() {
+  top = post_top - slot_floor + 1;
+  polygon([
+    [-slot_w / 2, 0],
+    [slot_w / 2, 0],
+    [slot_w / 2, slot_h],
+    [slot_w / 2 - lip, slot_h + lip],
+    [slot_w / 2 - lip, top],
+    [-slot_w / 2 + lip, top],
+    [-slot_w / 2 + lip, slot_h + lip],
+    [-slot_w / 2, slot_h],
+  ]);
 }
 
-// Blind threaded hole down from the seat, with a lead-in at its mouth to start the bolt
-module bolt_hole() {
-  translate([0, 0, seat_z - thread_depth]) thread_cut(thread_depth + 1);
-  translate([0, 0, seat_z - 0.5]) cylinder(d1=thread_major, d2=thread_major + 1, h=0.5 + eps);
+// Extrudes a 2D shape in the XZ plane from y_from to y_to
+module along_y(y_from, y_to) {
+  translate([0, y_to, 0]) rotate([90, 0, 0]) linear_extrude(y_to - y_from) children();
+}
+
+module slot() {
+  translate([0, 0, slot_floor]) {
+    along_y(mouth_y - 1, post_d / 2 + 1) slot_profile();
+    // lead-in: the profile widened by the chamfer at the mouth face, closing to size inside
+    if (mouth_chamfer > 0)
+      hull() {
+        along_y(mouth_y - 1, mouth_y + eps) offset(delta=mouth_chamfer + 1) slot_profile();
+        along_y(mouth_y + mouth_chamfer, mouth_y + mouth_chamfer + eps) slot_profile();
+      }
+  }
+}
+
+// Socket for the peg in the slot's floor, under the tab's hole
+module peg_socket() {
+  translate([0, tab_y, slot_floor - peg_depth]) cylinder(d=peg_d + 2 * socket_clearance, h=peg_depth + 1);
 }
 
 module stand() {
@@ -147,7 +200,18 @@ module stand() {
       base();
       post();
     }
-    bolt_hole();
+    slot();
+    peg_socket();
+  }
+}
+
+// Peg in its print orientation: head on the bed, shank up
+module peg() {
+  cylinder(d1=head_d - 2 * peg_chamfer, d2=head_d, h=peg_chamfer + eps);
+  translate([0, 0, peg_chamfer]) cylinder(d=head_d, h=head_h - peg_chamfer);
+  translate([0, 0, head_h - eps]) {
+    cylinder(d=peg_d, h=peg_l - tip_chamfer + eps);
+    translate([0, 0, peg_l - tip_chamfer]) cylinder(d1=peg_d, d2=peg_d - 2 * tip_chamfer, h=tip_chamfer);
   }
 }
 
@@ -211,35 +275,20 @@ module pinspot() {
   color("#1e1e1e") translate([0, pin_body_y, pin_pivot_z]) rotate([0, -tilt, 0]) pin_body();
 }
 
-// ---------------------------------------------------------------- hardware
-
-// Hex bolt along +Z with the underside of its head at Z=0; head = [across flats, height]
-module hex_bolt(d, l, head) {
-  translate([0, 0, -head[1]]) rotate(30) cylinder(d=head[0] / cos(30), h=head[1], $fn=6);
-  cylinder(d=d, h=l);
-}
-
-// Washer along +Z from Z=0; size = [outer diameter, thickness]
-module washer(d, size) {
-  difference() {
-    cylinder(d=size[0], h=size[1]);
-    translate([0, 0, -1]) cylinder(d=d + 0.4, h=size[1] + 2);
-  }
-}
-
-// g spreads the parts apart: the light, washer and bolt up off the post
+// g slides the light back out of the slot and lifts it clear, with the peg hovering over its hole
 module assembly(g=0) {
   color("#4a6378") stand();
-  if (show_hardware) {
-    translate([0, 0, seat_z + g]) pinspot();
-    color(hardware_color) {
-      tab_top = seat_z + pin_bracket_t;
-      translate([0, 0, tab_top + washer_t + 2.5 * g]) rotate([180, 0, 0]) hex_bolt(bolt_d, bolt_l, bolt_head);
-      translate([0, 0, tab_top + 2 * g]) washer(bolt_d, [washer_d, washer_t]);
-    }
-  }
+  if (show_light) translate([0, tab_y - g, slot_floor + slot_clearance + g / 4]) pinspot();
+  color("#e8b83a") translate([0, tab_y - g, tab_top + head_h + 3 * g / 4]) rotate([180, 0, 0]) peg();
 }
 
-if (view == "print") stand();
-else if (view == "assembly") assembly();
+if (view == "assembly") assembly();
 else if (view == "exploded") assembly(explode_gap);
+else if (view == "print") {
+  // at top level so --enable=lazy-union exports each part as its own 3MF object; the peg
+  // sits off the base's corner so the plate stays within the base's footprint
+  if (part != "peg") color("#4a6378") stand();
+  if (part != "stand")
+    translate(part == "all" ? (base_d / 2 + head_d / 2 + 2) * [cos(45), sin(45), 0] : [0, 0, 0])
+      color("#e8b83a") peg();
+}
