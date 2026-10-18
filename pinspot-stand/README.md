@@ -3,7 +3,8 @@
 A stand for an ADJ Pinspot LED II on a 2.5 in (63.5 mm) wide rectangular base,
 with no hardware. The light's own
 hanging bracket slides its tab into a slot on top of the post, and a printed
-peg dropped through the tab's bolt hole locks it there. Tilt is the bracket's
+peg dropped through the tab's bolt hole locks it there. A steel flat bar slid
+into a channel in the base weighs it down. Tilt is the bracket's
 knob; pan is turning the stand on the table. It is meant to be aimed once, at
 a disco ball.
 
@@ -19,20 +20,28 @@ a disco ball.
 
 ## Printing
 
-- Plate: 170 × 81.5 × 36 mm, fits an A1 mini. No supports: the slot is open on
+- Plate: 170 × 81.5 × 48 mm, fits an A1 mini. No supports: the slot is open on
   top and its lips slope at 45°.
-- The light hangs about 25 mm off the post toward the slot's open side, so the
-  narrow width of the base is the tipping direction. The stand tips at about
-  1 N (100 g) of sideways pull on the cord. Weight on the base on the side
-  away from the light helps most.
+- The channel's roof is a 26 mm bridge inside the base. It's wider than the
+  usual 15 mm limit, but it's hidden and nothing seats on it; the channel has
+  0.5 mm of extra height for it to sag into.
+- The light hangs about 20 mm off the post toward the slot's open side, so the
+  narrow width of the base is the tipping direction. Without the bar the stand
+  tips at roughly 1 N (100 g) of sideways pull on the cord; with the bar,
+  roughly 2.5 N.
 - Stand prints base down, peg head down. PLA is fine.
 
 ## Assembly
 
-1. Slide the bracket's tab into the slot from the flat side of the post until
+1. Slide a 1/2 × 1 × 6 in steel flat bar into the channel at the base's -X end
+   (the end the light's rear points at) and glue it, or it slides out when the
+   stand is picked up. The `Ballast` section sets the bar's size and 0.3 mm
+   clearance; check a hardware-store bar with calipers, nominal sizes run
+   slightly under.
+2. Slide the bracket's tab into the slot from the flat side of the post until
    the arm touches the post.
-2. Drop the peg through the tab's bolt hole into the socket in the slot floor.
-3. Tilt the light on its knob. Turn the stand to pan.
+3. Drop the peg through the tab's bolt hole into the socket in the slot floor.
+4. Tilt the light on its knob. Turn the stand to pan.
 
 ## Measurements
 

@@ -1,6 +1,7 @@
-// Tabletop stand for an ADJ Pinspot LED II on a 2.5 in wide base, with no hardware: the light's own hanging bracket
-// slides its tab into a slot on top of the post, and a printed peg dropped through the tab's
-// bolt hole locks it there. Tilt is the bracket's knob; pan is turning the stand on the table.
+// Tabletop stand for an ADJ Pinspot LED II on a 2.5 in wide base, with no hardware: the light's
+// own hanging bracket slides its tab into a slot on top of the post, and a printed peg dropped
+// through the tab's bolt hole locks it there. A steel bar slid into a channel in the base
+// weighs it down. Tilt is the bracket's knob; pan is turning the stand on the table.
 // Origin: post axis, Z=0 at the underside of the base (the bed). The lens points +X.
 // The stand prints as modelled, base down, with the slot's mouth on its -Y side. The peg
 // prints head down.
@@ -21,16 +22,33 @@ tilt = 45; // [-60:1:65]
 base_l = 170; // [80:1:180]
 // Across Y; 2.5 in, to sit on a 2.5 in surface
 base_w = 63.5; // [40:0.5:180]
-base_t = 6; // [3:0.5:15]
 // Chamfer on the base's top edge
 base_chamfer = 2; // [0:0.5:5]
+// Solid plastic under and over the bar's channel
+base_floor = 2; // [1.2:0.2:5]
+base_roof = 2; // [1.2:0.2:5]
+
+/* [Ballast] */
+// Steel flat bar, nominal 1/2 x 1 x 6 in, slid into the base from the -X end and glued. It sits
+// toward the -Y edge, away from the light, where it does the most to stop the stand tipping
+bar_w = 25.4; // [10:0.1:50]
+bar_t = 12.7; // [3:0.1:25]
+bar_l = 152.4; // [50:0.1:180]
+// Clearance per side around the bar
+bar_clearance = 0.3; // [0:0.05:1]
+// Plastic between the channel and the base's -Y edge
+bar_wall = 2; // [1.2:0.2:5]
+// Extra height for the channel's bridged roof to sag into
+bar_sag = 0.5; // [0:0.1:1]
 
 /* [Post] */
-post_d = 50; // [30:1:80]
+// Nearly the base's width: the wider the post, the further back its mouth face sits and the
+// closer the light's weight comes to the base's centre line
+post_d = 60; // [30:1:80]
 // Height of the post above the base
 post_h = 30; // [15:1:100]
 // 45 degree flare where the post meets the base
-post_flare = 6; // [0:1:20]
+post_flare = 1.5; // [0:0.5:20]
 
 /* [Slot] */
 // Clearance per side around the bracket's tab, so it slides in by hand
@@ -107,6 +125,15 @@ pin_cord_l = 40; // [0:1:100]
 $fn = 64;
 eps = 0.01;
 
+// Channel for the bar, through the -X end of the base and stopping short of the +X end
+channel_w = bar_w + 2 * bar_clearance;
+channel_h = bar_t + 2 * bar_clearance + bar_sag;
+channel_l = bar_l + 2 * bar_clearance;
+channel_y = -base_w / 2 + bar_wall + channel_w / 2; // centre line
+base_t = base_floor + channel_h + base_roof;
+assert(channel_w + 2 * bar_wall <= base_w, "the bar's channel is wider than the base");
+assert(channel_l + bar_wall <= base_l, "the bar's channel is longer than the base");
+
 post_top = base_t + post_h;
 slot_w = pin_bracket_w + 2 * slot_clearance;
 slot_h = pin_bracket_t + 2 * slot_clearance;
@@ -144,6 +171,15 @@ module base() {
     translate([-base_l / 2 + base_chamfer, -base_w / 2 + base_chamfer, 0])
       cube([base_l - 2 * base_chamfer, base_w - 2 * base_chamfer, base_t]);
   }
+}
+
+module channel() {
+  translate([-base_l / 2 - 1, channel_y - channel_w / 2, base_floor]) cube([channel_l + 1, channel_w, channel_h]);
+}
+
+// The steel bar, in place in its channel
+module bar() {
+  translate([-base_l / 2 + bar_clearance, channel_y - bar_w / 2, base_floor + bar_clearance]) cube([bar_l, bar_w, bar_t]);
 }
 
 // Cylinder with its flare, cut flat on the -Y side for the slot's mouth
@@ -204,6 +240,7 @@ module stand() {
     }
     slot();
     peg_socket();
+    channel();
   }
 }
 
@@ -277,9 +314,11 @@ module pinspot() {
   color("#1e1e1e") translate([0, pin_body_y, pin_pivot_z]) rotate([0, -tilt, 0]) pin_body();
 }
 
-// g slides the light back out of the slot and lifts it clear, with the peg hovering over its hole
+// g slides the light back out of the slot and lifts it clear, with the peg hovering over its
+// hole, and slides the bar out of its channel
 module assembly(g=0) {
   color("#4a6378") stand();
+  color("#8a8f94") translate([-g, 0, 0]) bar();
   if (show_light) translate([0, tab_y - g, slot_floor + slot_clearance + g / 4]) pinspot();
   color("#e8b83a") translate([0, tab_y - g, tab_top + head_h + 3 * g / 4]) rotate([180, 0, 0]) peg();
 }
