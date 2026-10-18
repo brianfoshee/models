@@ -1,4 +1,4 @@
-// Tabletop stand for an ADJ Pinspot LED II, with no hardware: the light's own hanging bracket
+// Tabletop stand for an ADJ Pinspot LED II on a 2.5 in wide base, with no hardware: the light's own hanging bracket
 // slides its tab into a slot on top of the post, and a printed peg dropped through the tab's
 // bolt hole locks it there. Tilt is the bracket's knob; pan is turning the stand on the table.
 // Origin: post axis, Z=0 at the underside of the base (the bed). The lens points +X.
@@ -17,7 +17,10 @@ explode_gap = 40; // [0:1:100]
 tilt = 45; // [-60:1:65]
 
 /* [Base] */
-base_d = 160; // [80:1:180]
+// Along X, under the light's length; as long as an A1 mini's 180 mm bed allows with a margin
+base_l = 170; // [80:1:180]
+// Across Y; 2.5 in, to sit on a 2.5 in surface
+base_w = 63.5; // [40:0.5:180]
 base_t = 6; // [3:0.5:15]
 // Chamfer on the base's top edge
 base_chamfer = 2; // [0:0.5:5]
@@ -27,7 +30,7 @@ post_d = 50; // [30:1:80]
 // Height of the post above the base
 post_h = 30; // [15:1:100]
 // 45 degree flare where the post meets the base
-post_flare = 8; // [0:1:20]
+post_flare = 6; // [0:1:20]
 
 /* [Slot] */
 // Clearance per side around the bracket's tab, so it slides in by hand
@@ -113,6 +116,7 @@ assert(post_d > slot_w + 2 * wall, "post_d is too thin for the slot and a wall e
 mouth_y = -sqrt(pow(post_d / 2, 2) - pow(slot_w / 2 + wall, 2));
 assert(slot_floor > base_t + post_flare + 2, "post_h is too short for the slot above the flare");
 assert(mouth_y + pin_tab_l - pin_bracket_t < post_d / 2, "the tab would stick out the back of the post");
+assert(post_d + 2 * post_flare <= base_w, "the post's flare is wider than the base");
 
 // Pinspot frame: the tab's hole on the Z axis, the tab's underside at Z=0, the arm on the
 // -Y side and the body above, lens toward +X
@@ -133,15 +137,13 @@ assert(slot_floor - peg_depth > base_t + post_flare, "peg_depth reaches down int
 
 // ---------------------------------------------------------------- stand
 
+// Rectangle with its top edge chamfered at 45 degrees
 module base() {
-  rotate_extrude()
-    polygon([
-      [0, 0],
-      [base_d / 2, 0],
-      [base_d / 2, base_t - base_chamfer],
-      [base_d / 2 - base_chamfer, base_t],
-      [0, base_t],
-    ]);
+  hull() {
+    translate([-base_l / 2, -base_w / 2, 0]) cube([base_l, base_w, base_t - base_chamfer]);
+    translate([-base_l / 2 + base_chamfer, -base_w / 2 + base_chamfer, 0])
+      cube([base_l - 2 * base_chamfer, base_w - 2 * base_chamfer, base_t]);
+  }
 }
 
 // Cylinder with its flare, cut flat on the -Y side for the slot's mouth
@@ -286,9 +288,9 @@ if (view == "assembly") assembly();
 else if (view == "exploded") assembly(explode_gap);
 else if (view == "print") {
   // at top level so --enable=lazy-union exports each part as its own 3MF object; the peg
-  // sits off the base's corner so the plate stays within the base's footprint
+  // sits beside the base's long side
   if (part != "peg") color("#4a6378") stand();
   if (part != "stand")
-    translate(part == "all" ? (base_d / 2 + head_d / 2 + 2) * [cos(45), sin(45), 0] : [0, 0, 0])
+    translate(part == "all" ? [0, base_w / 2 + head_d / 2 + 2, 0] : [0, 0, 0])
       color("#e8b83a") peg();
 }

@@ -1,6 +1,7 @@
 # Pinspot stand
 
-A tabletop stand for an ADJ Pinspot LED II, with no hardware. The light's own
+A stand for an ADJ Pinspot LED II on a 2.5 in (63.5 mm) wide rectangular base,
+with no hardware. The light's own
 hanging bracket slides its tab into a slot on top of the post, and a printed
 peg dropped through the tab's bolt hole locks it there. Tilt is the bracket's
 knob; pan is turning the stand on the table. It is meant to be aimed once, at
@@ -18,8 +19,12 @@ a disco ball.
 
 ## Printing
 
-- Plate: 160 × 160 × 36 mm, fits an A1 mini. No supports: the slot is open on
+- Plate: 170 × 81.5 × 36 mm, fits an A1 mini. No supports: the slot is open on
   top and its lips slope at 45°.
+- The light hangs about 25 mm off the post toward the slot's open side, so the
+  narrow width of the base is the tipping direction. The stand tips at about
+  1 N (100 g) of sideways pull on the cord. Weight on the base on the side
+  away from the light helps most.
 - Stand prints base down, peg head down. PLA is fine.
 
 ## Assembly
