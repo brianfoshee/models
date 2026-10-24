@@ -80,7 +80,8 @@ tip_chamfer = 1; // [0:0.25:3]
 /* [Pinspot] */
 // ADJ Pinspot LED II, drawn for illustration and to check clearances. Only the overall size
 // (184 x 99 x 61 mm) and weight (0.5 kg) are published (ADJ user manual). Everything below is
-// ESTIMATED from product photos scaled to the 61 mm body, not measured. Correct with calipers.
+// ESTIMATED from product photos scaled to the 61 mm body unless marked measured. Correct with
+// calipers.
 // Rear section of the body (the larger diameter, with the vents)
 pin_rear_d = 61; // [40:0.5:80]
 pin_rear_l = 62; // [30:0.5:100]
@@ -107,7 +108,7 @@ pin_arm_hole_d = 9; // [3:0.5:15]
 // Tab length and its holes, from the arm's outer face
 pin_tab_l = 30; // [15:0.5:50]
 pin_tab_hole_x = 22; // [5:0.5:40]
-pin_tab_hole_d = 11; // [6:0.5:16]
+pin_tab_hole_d = 10; // [6:0.5:16] measured
 pin_safety_hole_x = 11; // [3:0.5:30]
 pin_safety_hole_d = 3.5; // [2:0.5:8]
 // Ball-ended lever knob on the arm's outer face

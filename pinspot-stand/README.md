@@ -50,7 +50,7 @@ published. Everything in the `Pinspot` section of the source is estimated from
 product photos and needs calipers. The ones that set the fit:
 
 - `pin_bracket_w`, `pin_bracket_t` — the slot's width and height.
-- `pin_tab_hole_d` — the peg's diameter.
+- `pin_tab_hole_d` — the peg's diameter. Measured: 10 mm.
 - `pin_tab_hole_x` — where the peg's socket sits.
 - `pin_arm_rise` — how high the light sits, and where its body swings. The
   body hits the post past about 65° of tilt; that limit comes from the bracket.
