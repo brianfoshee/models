@@ -23,8 +23,8 @@ tilt = 45; // [-60:1:90]
 base_l = 170; // [80:1:180]
 // Across Y; 2.5 in, to sit on a 2.5 in surface
 base_w = 63.5; // [40:0.5:180]
-// Chamfer on the base's top edge
-base_chamfer = 2; // [0:0.5:5]
+// Chamfer on the base's top edge; the post's flare has to land inside it
+base_chamfer = 1; // [0:0.5:5]
 // Solid plastic under and over the bar's channel
 base_floor = 2; // [1.2:0.2:5]
 base_roof = 2; // [1.2:0.2:5]
@@ -45,7 +45,7 @@ bar_sag = 0.5; // [0:0.1:1]
 /* [Post] */
 // Nearly the base's width: the wider the post, the further back its mouth face sits and the
 // closer the light's weight comes to the base's centre line
-post_d = 60; // [30:1:80]
+post_d = 58; // [30:1:80]
 // Height of the post above the base
 post_h = 30; // [15:1:100]
 // 45 degree flare where the post meets the base
@@ -153,7 +153,7 @@ assert(post_d > slot_w + 2 * wall, "post_d is too thin for the slot and a wall e
 mouth_y = -sqrt(pow(post_d / 2, 2) - pow(slot_w / 2 + wall, 2));
 assert(slot_floor > base_t + post_flare + 2, "post_h is too short for the slot above the flare");
 assert(mouth_y + pin_tab_l - pin_bracket_t < post_d / 2, "the tab would stick out the back of the post");
-assert(post_d + 2 * post_flare <= base_w, "the post's flare is wider than the base");
+assert(post_d / 2 + post_flare <= base_w / 2 - base_chamfer, "the post's flare lands on the base's chamfer");
 
 // Pinspot frame: the tab's hole on the Z axis, the tab's underside at Z=0, the arm on the
 // -Y side and the body above, lens toward +X
