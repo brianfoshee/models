@@ -14,9 +14,9 @@ part = "all"; // [all, stand, peg, bracket]
 // Light in the assembly views, for illustration
 show_light = true;
 explode_gap = 40; // [0:1:100]
-// Tilt of the light on its bracket knob, up from horizontal. Past about 65 degrees the body
-// hits the post; that limit is set by the bracket, not the stand
-tilt = 45; // [-60:1:65]
+// Tilt of the light on its bracket knob, up from horizontal. Past about 46 degrees the rear of
+// the body swings down onto the top of the post; that limit is set by the bracket's short arm
+tilt = 45; // [-60:1:90]
 
 /* [Base] */
 // Along X, under the light's length; as long as an A1 mini's 180 mm bed allows with a margin
@@ -103,7 +103,14 @@ pin_bracket_w = 23; // [15:0.5:40] measured
 pin_bracket_t = 3; // [1:0.1:5] measured
 // Arm length from the tab's underside to its rounded end
 pin_arm_l = 93; // [40:0.5:130] measured
-// Hole in the arm, above the pivot
+// Slot in the arm for the pivot screw, which tightens anywhere along it to set how high the
+// light sits: its width, its length, and its end's distance from the arm's end
+pin_arm_slot_w = 9; // [3:0.5:15]
+pin_arm_slot_l = 25; // [5:0.5:50] measured
+pin_arm_slot_end = 7; // [1:0.5:20] measured
+// Where the pivot screw is tightened along the slot, from the tab's underside
+pin_pivot_z = 81.5; // [50:0.5:100]
+// Hole in the arm below the slot
 pin_arm_hole_z = 50; // [10:0.5:100]
 pin_arm_hole_d = 9; // [3:0.5:15]
 // Tab length from the arm's outer face
@@ -153,7 +160,10 @@ assert(post_d + 2 * post_flare <= base_w, "the post's flare is wider than the ba
 pin_tab_hole_x = pin_tab_l - pin_tab_hole_end - pin_tab_hole_d / 2; // hole centre from the arm's outer face
 pin_arm_y = -pin_tab_hole_x; // arm's outer face
 pin_body_y = pin_arm_y + pin_bracket_t + pin_hub_l + pin_rear_d / 2; // body axis
-pin_pivot_z = pin_arm_l - pin_bracket_w / 2; // pivot at the centre of the arm's rounded end (estimated)
+pin_arm_slot_top = pin_arm_l - pin_arm_slot_end;
+pin_arm_slot_bot = pin_arm_slot_top - pin_arm_slot_l;
+assert(pin_pivot_z >= pin_arm_slot_bot + pin_arm_slot_w / 2 && pin_pivot_z <= pin_arm_slot_top - pin_arm_slot_w / 2,
+  "pin_pivot_z is outside the arm's slot");
 
 // Where the tab's hole lands with the tab slid in and the arm against the mouth face
 tab_y = mouth_y + pin_tab_hole_x - pin_bracket_t;
@@ -194,7 +204,7 @@ module post() {
       cylinder(d=post_d, h=post_h + eps);
       cylinder(d1=2 * r, d2=post_d, h=post_flare);
     }
-    translate([-r - 1, mouth_y, 0]) cube([2 * r + 2, r + 1, post_top + 1]);
+    translate([-r - 1, mouth_y, 0]) cube([2 * r + 2, r - mouth_y + 1, post_top + 1]);
   }
 }
 
@@ -288,14 +298,15 @@ module pin_bracket() {
     union() {
       translate([-w / 2, pin_arm_y, 0]) cube([w, pin_tab_l, t]);
       hull() {
-        translate([-w / 2, pin_arm_y, 0]) cube([w, t, pin_pivot_z]);
-        translate([0, pin_arm_y, pin_pivot_z]) rotate([-90, 0, 0]) cylinder(d=w, h=t);
+        translate([-w / 2, pin_arm_y, 0]) cube([w, t, pin_arm_l - w / 2]);
+        translate([0, pin_arm_y, pin_arm_l - w / 2]) rotate([-90, 0, 0]) cylinder(d=w, h=t);
       }
     }
     translate([0, 0, -1]) cylinder(d=pin_tab_hole_d, h=t + 2);
     translate([0, pin_arm_y + pin_safety_hole_x, -1]) cylinder(d=pin_safety_hole_d, h=t + 2);
-    for (z = [pin_arm_hole_z, pin_pivot_z])
-      translate([0, pin_arm_y - 1, z]) rotate([-90, 0, 0]) cylinder(d=pin_arm_hole_d, h=t + 2);
+    translate([0, pin_arm_y - 1, pin_arm_hole_z]) rotate([-90, 0, 0]) cylinder(d=pin_arm_hole_d, h=t + 2);
+    hull() for (z = [pin_arm_slot_bot + pin_arm_slot_w / 2, pin_arm_slot_top - pin_arm_slot_w / 2])
+      translate([0, pin_arm_y - 1, z]) rotate([-90, 0, 0]) cylinder(d=pin_arm_slot_w, h=t + 2);
   }
 }
 

@@ -51,10 +51,11 @@ a disco ball.
 Only the light's overall size (184 × 99 × 61 mm) and weight (0.5 kg) are
 published. The bracket's tab, which sets every fit, is measured: 34 mm long
 from the arm's outer face, 23 wide, 3 thick, with a 10 mm hole whose edge is
-5 mm from the end. The rest of the `Pinspot` section is estimated from product
-photos and only affects the illustration and the tilt limit:
+5 mm from the end. The arm is 93 mm with a 25 mm slot for the pivot screw
+ending 7 mm from its end, so the light can sit anywhere along that slot
+(`pin_pivot_z`, default at the top). The rest of the `Pinspot` section is
+estimated from product photos and only affects the illustration.
 
-- The arm is measured at 93 mm, but where the pivot sits on it is estimated at
-  the centre of its rounded end. That sets how high the light sits and where
-  its body swings. The body hits the post past about 65° of tilt; that limit
-  comes from the bracket.
+Tilt is limited to about 46° up from horizontal: past that the rear of the
+body swings down onto the top of the post. That comes from the bracket's short
+arm, not the stand, and sliding the light lower on the slot makes it worse.
