@@ -11,8 +11,11 @@ a disco ball.
 ## Files
 
 - `pinspot-stand.scad` — source. `view` switches between `assembly`,
-  `exploded` and `print`; `part` picks `all`, `stand` or `peg` in print view.
+  `exploded` and `print`; `part` picks `all`, `stand`, `peg` or `bracket` in
+  print view.
 - `pinspot-stand.3mf` — stand and peg on one plate.
+- `pinspot-stand-bracket.3mf` — a copy of the light's L bracket, to test-fit
+  the slot and peg without the light. Print it tab down with a brim.
 - `pinspot-stand.usdz` — assembled, with the light, for AR Quick Look.
 - `pinspot-stand-exploded.usdz` — the light slid out and the peg lifted.
 - `pinspot-stand-parts.usdz` — the print plate.

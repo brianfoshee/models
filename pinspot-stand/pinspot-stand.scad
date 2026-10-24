@@ -8,8 +8,9 @@
 
 /* [View] */
 view = "assembly"; // [assembly, exploded, print]
-// Which part the print view lays out
-part = "all"; // [all, stand, peg]
+// Which part the print view lays out. bracket is a copy of the light's L bracket, for
+// test-fitting the slot and peg without the light; it isn't part of the stand, so not in all
+part = "all"; // [all, stand, peg, bracket]
 // Light in the assembly views, for illustration
 show_light = true;
 explode_gap = 40; // [0:1:100]
@@ -331,8 +332,12 @@ else if (view == "exploded") assembly(explode_gap);
 else if (view == "print") {
   // at top level so --enable=lazy-union exports each part as its own 3MF object; the peg
   // sits beside the base's long side
-  if (part != "peg") color("#4a6378") stand();
-  if (part != "stand")
+  if (part == "all" || part == "stand") color("#4a6378") stand();
+  if (part == "all" || part == "peg")
     translate(part == "all" ? [0, base_w / 2 + head_d / 2 + 2, 0] : [0, 0, 0])
       color("#e8b83a") peg();
+  // tab on the bed, so its bolt hole prints round for the peg; the arm's holes come out
+  // horizontal and sag a little, which doesn't matter for the fit. Use a brim: it's 93 mm
+  // tall on a 34 x 23 mm foot
+  if (part == "bracket") color("#333333") pin_bracket();
 }
