@@ -100,8 +100,8 @@ pin_hub_l = 13; // [3:0.5:30]
 // Bracket bar. Width and thickness size the slot
 pin_bracket_w = 23; // [15:0.5:40] measured
 pin_bracket_t = 3; // [1:0.1:5] measured
-// Pivot axis to the tab's underside, along the arm
-pin_arm_rise = 80; // [30:0.5:120]
+// Arm length from the tab's underside to its rounded end
+pin_arm_l = 93; // [40:0.5:130] measured
 // Hole in the arm, above the pivot
 pin_arm_hole_z = 50; // [10:0.5:100]
 pin_arm_hole_d = 9; // [3:0.5:15]
@@ -152,7 +152,7 @@ assert(post_d + 2 * post_flare <= base_w, "the post's flare is wider than the ba
 pin_tab_hole_x = pin_tab_l - pin_tab_hole_end - pin_tab_hole_d / 2; // hole centre from the arm's outer face
 pin_arm_y = -pin_tab_hole_x; // arm's outer face
 pin_body_y = pin_arm_y + pin_bracket_t + pin_hub_l + pin_rear_d / 2; // body axis
-pin_pivot_z = pin_bracket_t + pin_arm_rise;
+pin_pivot_z = pin_arm_l - pin_bracket_w / 2; // pivot at the centre of the arm's rounded end (estimated)
 
 // Where the tab's hole lands with the tab slid in and the arm against the mouth face
 tab_y = mouth_y + pin_tab_hole_x - pin_bracket_t;

@@ -51,5 +51,7 @@ from the arm's outer face, 23 wide, 3 thick, with a 10 mm hole whose edge is
 5 mm from the end. The rest of the `Pinspot` section is estimated from product
 photos and only affects the illustration and the tilt limit:
 
-- `pin_arm_rise` — how high the light sits, and where its body swings. The
-  body hits the post past about 65° of tilt; that limit comes from the bracket.
+- The arm is measured at 93 mm, but where the pivot sits on it is estimated at
+  the centre of its rounded end. That sets how high the light sits and where
+  its body swings. The body hits the post past about 65° of tilt; that limit
+  comes from the bracket.
