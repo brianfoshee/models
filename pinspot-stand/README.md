@@ -49,7 +49,8 @@ Only the light's overall size (184 × 99 × 61 mm) and weight (0.5 kg) are
 published. Everything in the `Pinspot` section of the source is estimated from
 product photos and needs calipers. The ones that set the fit:
 
-- `pin_bracket_w`, `pin_bracket_t` — the slot's width and height.
+- `pin_bracket_w`, `pin_bracket_t` — the slot's width and height. Width
+  measured: 23 mm.
 - `pin_tab_hole_d` — the peg's diameter. Measured: 10 mm.
 - `pin_tab_hole_x` — where the peg's socket sits.
 - `pin_arm_rise` — how high the light sits, and where its body swings. The

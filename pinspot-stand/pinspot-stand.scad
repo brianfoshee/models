@@ -98,7 +98,7 @@ pin_pivot_x = 72; // [20:0.5:150]
 pin_hub_d = 26; // [10:0.5:40]
 pin_hub_l = 13; // [3:0.5:30]
 // Bracket bar. Width and thickness size the slot
-pin_bracket_w = 27; // [15:0.5:40]
+pin_bracket_w = 23; // [15:0.5:40] measured
 pin_bracket_t = 3; // [1:0.1:5]
 // Pivot axis to the tab's underside, along the arm
 pin_arm_rise = 80; // [30:0.5:120]
