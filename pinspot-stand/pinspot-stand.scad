@@ -99,16 +99,17 @@ pin_hub_d = 26; // [10:0.5:40]
 pin_hub_l = 13; // [3:0.5:30]
 // Bracket bar. Width and thickness size the slot
 pin_bracket_w = 23; // [15:0.5:40] measured
-pin_bracket_t = 3; // [1:0.1:5]
+pin_bracket_t = 3; // [1:0.1:5] measured
 // Pivot axis to the tab's underside, along the arm
 pin_arm_rise = 80; // [30:0.5:120]
 // Hole in the arm, above the pivot
 pin_arm_hole_z = 50; // [10:0.5:100]
 pin_arm_hole_d = 9; // [3:0.5:15]
-// Tab length and its holes, from the arm's outer face
+// Tab length from the arm's outer face
 pin_tab_l = 30; // [15:0.5:50]
-pin_tab_hole_x = 22; // [5:0.5:40]
+// Bolt hole, centred across the tab: its diameter and its edge's distance from the tab's end
 pin_tab_hole_d = 10; // [6:0.5:16] measured
+pin_tab_hole_end = 5; // [1:0.5:20] measured
 pin_safety_hole_x = 11; // [3:0.5:30]
 pin_safety_hole_d = 3.5; // [2:0.5:8]
 // Ball-ended lever knob on the arm's outer face
@@ -148,6 +149,7 @@ assert(post_d + 2 * post_flare <= base_w, "the post's flare is wider than the ba
 
 // Pinspot frame: the tab's hole on the Z axis, the tab's underside at Z=0, the arm on the
 // -Y side and the body above, lens toward +X
+pin_tab_hole_x = pin_tab_l - pin_tab_hole_end - pin_tab_hole_d / 2; // hole centre from the arm's outer face
 pin_arm_y = -pin_tab_hole_x; // arm's outer face
 pin_body_y = pin_arm_y + pin_bracket_t + pin_hub_l + pin_rear_d / 2; // body axis
 pin_pivot_z = pin_bracket_t + pin_arm_rise;
