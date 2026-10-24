@@ -106,7 +106,7 @@ pin_arm_rise = 80; // [30:0.5:120]
 pin_arm_hole_z = 50; // [10:0.5:100]
 pin_arm_hole_d = 9; // [3:0.5:15]
 // Tab length from the arm's outer face
-pin_tab_l = 30; // [15:0.5:50]
+pin_tab_l = 34; // [15:0.5:50] measured
 // Bolt hole, centred across the tab: its diameter and its edge's distance from the tab's end
 pin_tab_hole_d = 10; // [6:0.5:16] measured
 pin_tab_hole_end = 5; // [1:0.5:20] measured

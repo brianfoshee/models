@@ -46,13 +46,10 @@ a disco ball.
 ## Measurements
 
 Only the light's overall size (184 × 99 × 61 mm) and weight (0.5 kg) are
-published. Everything in the `Pinspot` section of the source is estimated from
-product photos and needs calipers. The ones that set the fit:
+published. The bracket's tab, which sets every fit, is measured: 34 mm long
+from the arm's outer face, 23 wide, 3 thick, with a 10 mm hole whose edge is
+5 mm from the end. The rest of the `Pinspot` section is estimated from product
+photos and only affects the illustration and the tilt limit:
 
-- `pin_bracket_w`, `pin_bracket_t` — the slot's width and height. Measured:
-  23 × 3 mm.
-- `pin_tab_hole_d` — the peg's diameter. Measured: 10 mm.
-- `pin_tab_l` — the tab's length from the arm's outer face. With the hole's
-  measured 5 mm from the end, this sets where the peg's socket sits.
 - `pin_arm_rise` — how high the light sits, and where its body swings. The
   body hits the post past about 65° of tilt; that limit comes from the bracket.
